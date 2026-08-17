@@ -126,7 +126,8 @@
         }
 
         .meta-data-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 14px; }
-        .meta-data-table td { padding: 2px; width: 33.33%; }
+        /* تمت إضافة white-space: nowrap; هنا لمنع نزول النصوص لسطر جديد */
+        .meta-data-table td { padding: 2px; width: 33.33%; white-space: nowrap; }
         .meta-data-table td:nth-child(1) { text-align: right; }
         .meta-data-table td:nth-child(2) { text-align: center; }
         .meta-data-table td:nth-child(3) { text-align: left; }
