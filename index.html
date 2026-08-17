@@ -204,11 +204,17 @@
             <input type="file" id="excel-file" accept=".xlsx, .xls">
         </div>
 
-        <!-- الخيار الثاني: قراءة من نفس المسار -->
+        <!-- الخيار الثاني: قراءة من نفس المسار (قائمة منسدلة) -->
         <div class="input-group">
             <label>📂 قراءة ملف (من نفس مسار GitHub)</label>
             <div style="display: flex; gap: 5px;">
-                <input type="text" id="local-file-name" placeholder="مثال: data.xlsx" style="flex:1;">
+                <select id="local-file-name" style="flex:1;">
+                    <option value="data.xlsx" selected>data.xlsx</option>
+                    <option value="grades.xlsx">grades.xlsx</option>
+                    <option value="report.xlsx">report.xlsx</option>
+                    <option value="sheet1.xlsx">sheet1.xlsx</option>
+                    <!-- يمكنك إضافة المزيد من أسماء الملفات هنا -->
+                </select>
                 <button class="btn-info" onclick="loadLocalFile()" title="قراءة الملف من الخادم">تحميل</button>
             </div>
         </div>
@@ -325,7 +331,7 @@
 
         // 2. القراءة من ملف مرفوع على نفس مسار السيرفر / GitHub
         function loadLocalFile() {
-            const fileName = document.getElementById('local-file-name').value || 'data.xlsx';
+            const fileName = document.getElementById('local-file-name').value;
             fetch(fileName)
                 .then(response => {
                     if (!response.ok) throw new Error("File not found");
@@ -336,7 +342,7 @@
                     processWorkbook(workbook);
                 })
                 .catch(error => {
-                    alert('لم يتم العثور على الملف في المسار الحالي! تأكد من اسم الملف وامتداده: ' + fileName);
+                    alert('لم يتم العثور على الملف في المسار الحالي! تأكد من وجود الملف: ' + fileName);
                 });
         }
 
