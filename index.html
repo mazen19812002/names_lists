@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KFS-HIET Final Report Generator</title>
     
-    <!-- Dependencies: Cairo Font, 10 Handwriting Fonts (Straight '1'), & SheetJS for Excel processing -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amatic+SC:wght@700&family=Caveat:wght@700&family=Zeyada&family=Reenie+Beanie&family=Just+Another+Hand&family=Nanum+Pen+Script&family=Nothing+You+Could+Do&family=Waiting+for+the+Sunrise&family=Covered+By+Your+Grace&family=Dawning+of+a+New+Day&display=swap" rel="stylesheet">
+    <!-- Dependencies: Cairo Font, 11 Handwriting Fonts (Straight '1' + Kalam), & SheetJS for Excel processing -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amatic+SC:wght@700&family=Caveat:wght@700&family=Zeyada&family=Reenie+Beanie&family=Just+Another+Hand&family=Nanum+Pen+Script&family=Nothing+You+Could+Do&family=Waiting+for+the+Sunrise&family=Covered+By+Your+Grace&family=Dawning+of+a+New+Day&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
@@ -221,9 +221,10 @@
 
         <!-- اختيارات الخط واللون والاصطفاف للدرجات المضافة حديثاً -->
         <div class="input-group">
-            <label>🖋️ خط الدرجات (يدوي - 1 مستقيم)</label>
+            <label>🖋️ خط الدرجات (يدوي)</label>
             <select id="grade-font-select" onchange="renderPages()">
                 <option value="'Caveat', cursive" selected>Caveat</option>
+                <option value="'Kalam', cursive">Kalam</option>
                 <option value="'Amatic SC', cursive">Amatic SC</option>
                 <option value="'Zeyada', cursive">Zeyada</option>
                 <option value="'Just Another Hand', cursive">Just Another Hand</option>
@@ -581,7 +582,7 @@
                     let statusTxt = row[4] || '';
                     let statusStyle = statusTxt.length > 7 ? 'font-size: 10px; letter-spacing: -0.5px;' : 'font-size: 13px;';
                     
-                    // معالجة الأرقام في العمود الأخير بناءً على خيار العشوائية
+                    // معالجة الأرقام في العمود الأخير بناءً على خيار العشوائية مع إصلاح مشكلة تمدد الـ Line-height للخطوط اليدوية
                     let gradeTxt = row[5] !== undefined ? String(row[5]).trim() : '';
                     if (/\d/.test(gradeTxt)) {
                         let transformStyle = '';
@@ -592,7 +593,7 @@
                             transformStyle = `transform: translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg);`;
                         }
                         
-                        gradeTxt = `<span style="font-family: ${gradeFont}; color: ${gradeColor}; font-weight: bold; font-size: 21px; display: inline-block; ${transformStyle}">${gradeTxt}</span>`;
+                        gradeTxt = `<span style="font-family: ${gradeFont}; color: ${gradeColor}; font-weight: bold; font-size: 21px; display: inline-block; line-height: 0.5; ${transformStyle}">${gradeTxt}</span>`;
                     }
 
                     rowsHTML += `
