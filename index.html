@@ -58,27 +58,38 @@
         }
         input[type="text"]:focus, select:focus { border-color: #2a5298; }
 
-        .btn-group { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px; }
-        
         button {
             padding: 10px 20px; border: none; border-radius: 25px; color: white;
             font-weight: bold; font-size: 14px; cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;
-            display: flex; align-items: center; gap: 8px;
+            display: flex; align-items: center; gap: 8px; justify-content: center;
         }
         button:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
         .btn-action { background: var(--btn-accept); }
         .btn-info { background: var(--btn-info); padding: 8px 12px; font-size: 13px; justify-content: center;}
-        .btn-tool { background: var(--blue-grad); padding: 10px; border-radius: 50%; }
-
-        /* Floating Toggle Button */
+        
+        /* === Floating Tools Container & Buttons === */
+        #floating-tools {
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            z-index: 1000;
+        }
         #floating-toggle {
-            position: fixed; bottom: 60px; right: 20px; width: 50px; height: 50px;
+            width: 50px; height: 50px;
             border-radius: 50%; background: var(--blue-grad); color: white;
             font-size: 24px; border: none; box-shadow: var(--shadow); cursor: pointer;
-            z-index: 1000; transition: transform 0.3s; justify-content: center;
+            transition: transform 0.3s; display: flex; justify-content: center; align-items: center; padding: 0;
         }
         #floating-toggle:hover { transform: rotate(90deg) scale(1.1); }
+        
+        .btn-tool { 
+            background: var(--blue-grad); width: 45px; height: 45px; 
+            border-radius: 50%; padding: 0; display: flex; justify-content: center; align-items: center; 
+        }
 
         /* === Switch Button Styles === */
         .switch-container {
@@ -198,7 +209,7 @@
         @media print {
             @page { size: A4; margin: 0; }
             body { background: none; margin: 0; padding: 0; }
-            #control-panel, #floating-toggle, #animated-footer { display: none !important; }
+            #control-panel, #floating-tools, #animated-footer { display: none !important; }
             #report-wrapper { padding: 0; gap: 0; display: block; transform: scale(1) !important; margin: 0; overflow: hidden; }
             .page {
                 box-shadow: none; 
@@ -352,16 +363,16 @@
             <label>✍️ اسم عضو إضافي (اختياري)</label>
             <input type="text" id="instructor2-input" placeholder="اتركه فارغاً إذا لم يوجد" oninput="renderPages()">
         </div>
-        
-        <div class="btn-group">
-            <button class="btn-action" onclick="window.print()">🖨️ طباعة PDF</button>
-            <button class="btn-tool" onclick="zoom(0.1)" title="تكبير">➕</button>
-            <button class="btn-tool" onclick="zoom(-0.1)" title="تصغير">➖</button>
-            <button class="btn-tool" onclick="toggleFullScreen()" title="ملء الشاشة">🖥️</button>
-        </div>
     </div>
 
-    <button id="floating-toggle" onclick="toggleUI()" title="إظهار/إخفاء لوحة التحكم">⚙️</button>
+    <!-- مجموعة الأزرار العائمة (Floating Tools) -->
+    <div id="floating-tools">
+        <button id="floating-toggle" onclick="toggleUI()" title="إظهار/إخفاء لوحة التحكم">⚙️</button>
+        <button class="btn-action" onclick="window.print()">🖨️ طباعة PDF</button>
+        <button class="btn-tool" onclick="zoom(0.1)" title="تكبير">➕</button>
+        <button class="btn-tool" onclick="zoom(-0.1)" title="تصغير">➖</button>
+        <button class="btn-tool" onclick="toggleFullScreen()" title="ملء الشاشة">🖥️</button>
+    </div>
 
     <!-- Report Area -->
     <div id="report-wrapper"></div>
@@ -379,17 +390,15 @@
 
         window.onload = function() { 
             renderPages(); 
-            autoLoadExcelFiles(); // جلب قائمة الملفات ديناميكياً عند بدء التشغيل
+            autoLoadExcelFiles(); 
         }
 
-        // --- دالة جلب قائمة الملفات التلقائية (GitHub API / Local Fetch) ---
         async function autoLoadExcelFiles() {
             const select = document.getElementById('local-file-name');
             const host = window.location.hostname;
             const path = window.location.pathname;
 
             try {
-                // محاولة 1: استخراج البيانات من GitHub API إذا كان الموقع مرفوعاً على GitHub Pages
                 if (host.includes('github.io')) {
                     const username = host.split('.')[0];
                     const repo = path.split('/')[1] || '';
@@ -409,7 +418,7 @@
                                     if (index === 0) option.selected = true;
                                     select.appendChild(option);
                                 });
-                                return; // تم الجلب بنجاح
+                                return;
                             } else {
                                 select.innerHTML = '<option value="" disabled>لا يوجد ملفات اكسيل في المستودع</option>';
                                 return;
@@ -418,7 +427,6 @@
                     }
                 } 
                 
-                // محاولة 2: قراءة مسار المجلد (تعمل في السيرفرات المحلية Localhost)
                 const res = await fetch('./');
                 if (res.ok) {
                     const text = await res.text();
@@ -427,7 +435,7 @@
                     const localFiles = [];
                     
                     while ((match = regex.exec(text)) !== null) {
-                        let fileName = match[1].replace(/^\.\//, ''); // إزالة ./ إن وجدت
+                        let fileName = match[1].replace(/^\.\//, ''); 
                         if (!localFiles.includes(fileName)) {
                             localFiles.push(decodeURIComponent(fileName));
                         }
@@ -446,7 +454,6 @@
                     }
                 }
                 
-                // إذا لم يجد شيئاً (الحالة الافتراضية)
                 select.innerHTML = '<option value="data.xlsx">data.xlsx</option>';
             } catch (error) {
                 console.log("استخدام الخيارات الافتراضية لعدم توفر API للاستعراض");
@@ -454,7 +461,6 @@
             }
         }
 
-        // 1. القراءة من ملف محلي (جهاز الكمبيوتر)
         document.getElementById('excel-file').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -468,7 +474,6 @@
             reader.readAsArrayBuffer(file);
         });
 
-        // 2. القراءة من ملف مرفوع على نفس مسار السيرفر / GitHub
         function loadLocalFile() {
             const fileName = document.getElementById('local-file-name').value;
             if(!fileName) {
@@ -489,7 +494,6 @@
                 });
         }
 
-        // --- المعالجة الذكية لملف الإكسيل واستخراج الأعمدة ---
         function processWorkbook(workbook) {
             globalStudentsData = [];
             
@@ -504,11 +508,9 @@
                     const row = sheetData[i];
                     const rowStr = row.join('').replace(/\s/g, '');
                     
-                    // البحث عن صف العناوين
                     if (rowStr.includes("رقمالجلوس") || rowStr.includes("اسمالطالب") || rowStr.includes("الكود")) {
                         headerFound = true;
                         
-                        // تحديد أماكن الأعمدة ديناميكياً
                         for (let c = 0; c < row.length; c++) {
                             let val = String(row[c]).trim();
                             if (!val) continue;
@@ -526,7 +528,6 @@
                             hIdx.grade = maxIdx + 1;
                         }
 
-                        // قراءة بيانات الطلاب أسفل صف العناوين
                         for (let j = i + 1; j < sheetData.length; j++) {
                             const dataRow = sheetData[j];
                             if (dataRow.join('').trim() === '') continue; 
@@ -549,7 +550,6 @@
                     }
                 }
                 
-                // --- معالجة احتياطية ---
                 if (!headerFound) {
                     sheetData.forEach(row => {
                         if (row.join('').trim() === '') return;
@@ -572,7 +572,6 @@
             renderPages();
         }
 
-        // --- بناء وطباعة صفحات التقرير ---
         function renderPages() {
             const wrapper = document.getElementById('report-wrapper');
             wrapper.innerHTML = ''; 
@@ -589,7 +588,6 @@
             const inst1 = document.getElementById('instructor-input').value;
             const inst2 = document.getElementById('instructor2-input').value;
             
-            // قراءة المتغيرات الجديدة للأزرار
             const gradeFont = document.getElementById('grade-font-select').value;
             const gradeColor = document.getElementById('grade-color-input').value;
             const isRandomAlign = document.getElementById('random-align-toggle').checked;
@@ -610,7 +608,6 @@
         function createPageHTML(chunkData, semester, year, dept, section, course, reportType, subType, lastCol, inst1, inst2, gradeFont, gradeColor, isRandomAlign, isTableBold) {
             let rowsHTML = '';
             
-            // تحديد كلاس سُمك الخط للجدول بناءً على زر السويتش
             let weightClass = isTableBold ? 'fw-bold' : 'fw-normal';
 
             if (chunkData.length === 0) {
@@ -620,7 +617,6 @@
                     let statusTxt = row[4] || '';
                     let statusStyle = statusTxt.length > 7 ? 'font-size: 10px; letter-spacing: -0.5px;' : 'font-size: 13px;';
                     
-                    // معالجة الأرقام في العمود الأخير
                     let gradeTxt = row[5] !== undefined ? String(row[5]).trim() : '';
                     if (/\d/.test(gradeTxt)) {
                         let transformStyle = '';
@@ -723,7 +719,6 @@
             `;
         }
 
-        // --- أدوات التحكم (تكبير/تصغير وشاشة كاملة) ---
         function zoom(amount) {
             currentZoom += amount;
             if (currentZoom < 0.5) currentZoom = 0.5;
