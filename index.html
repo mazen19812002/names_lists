@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KFS-HIET Final Report Generator</title>
     
-    <!-- Dependencies: Cairo Font, 10 Handwriting Fonts, & SheetJS for Excel processing -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amatic+SC:wght@700&family=Caveat:wght@700&family=Dancing+Script:wght@700&family=Indie+Flower&family=Kalam:wght@700&family=Marck+Script&family=Pacifico&family=Patrick+Hand&family=Permanent+Marker&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+    <!-- Dependencies: Cairo Font, 10 Handwriting Fonts (Straight '1'), & SheetJS for Excel processing -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amatic+SC:wght@700&family=Caveat:wght@700&family=Zeyada&family=Reenie+Beanie&family=Just+Another+Hand&family=Nanum+Pen+Script&family=Nothing+You+Could+Do&family=Waiting+for+the+Sunrise&family=Covered+By+Your+Grace&family=Dawning+of+a+New+Day&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
@@ -99,7 +99,7 @@
         .page {
             background: white;
             width: 210mm;
-            height: 296mm; 
+            height: 297mm; 
             padding: 10mm;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
             font-family: 'Cairo', sans-serif;
@@ -133,12 +133,12 @@
         .bold-label { font-weight: 700; }
         .regular-data { font-weight: 400; }
 
-        /* Data Table Constraints */
+        /* Data Table Constraints - Adjusted for perfect A4 fitting */
         .data-table {
             width: 100%; border-collapse: collapse; font-size: 13px; 
         }
         .data-table tr {
-            height: 27px; 
+            height: 24.5px; /* Reduced slightly to ensure full fit on A4 */
         }
         .data-table th, .data-table td {
             border: 1px solid #000; text-align: center; font-weight: bold; box-sizing: border-box;
@@ -166,7 +166,7 @@
 
         /* Signature Layout */
         .signature-area {
-            margin-top: 10px;
+            margin-top: 5px; /* Reduced top margin to ensure A4 fit */
             font-size: 15px;
             font-weight: bold;
             display: flex;
@@ -176,14 +176,17 @@
         .sig-col { display: flex; flex-direction: column; gap: 5px; }
         .sig-col.center { text-align: center; align-items: center; }
 
-        /* === Print Media Queries === */
+        /* === Print Media Queries - Strict A4 Constraints === */
         @media print {
             @page { size: A4; margin: 0; }
             body { background: none; margin: 0; padding: 0; }
             #control-panel, #floating-toggle, #animated-footer { display: none !important; }
-            #report-wrapper { padding: 0; gap: 0; display: block; transform: scale(1) !important; margin: 0; overflow: visible;}
+            #report-wrapper { padding: 0; gap: 0; display: block; transform: scale(1) !important; margin: 0; overflow: hidden; }
             .page {
-                box-shadow: none; margin: 0; padding: 10mm;
+                box-shadow: none; 
+                margin: 0; 
+                padding: 8mm 10mm; /* Reduced vertical padding slightly to prevent overflow */
+                width: 210mm;
                 height: 297mm !important;
                 max-height: 297mm !important;
                 page-break-after: always;
@@ -216,26 +219,34 @@
             </div>
         </div>
 
-        <!-- اختيارات الخط واللون للدرجات المضافة حديثاً -->
+        <!-- اختيارات الخط واللون والاصطفاف للدرجات المضافة حديثاً -->
         <div class="input-group">
-            <label>🖋️ خط الدرجات (يدوي)</label>
+            <label>🖋️ خط الدرجات (يدوي - 1 مستقيم)</label>
             <select id="grade-font-select" onchange="renderPages()">
                 <option value="'Caveat', cursive" selected>Caveat</option>
-                <option value="'Indie Flower', cursive">Indie Flower</option>
-                <option value="'Shadows Into Light', cursive">Shadows Into Light</option>
-                <option value="'Dancing Script', cursive">Dancing Script</option>
-                <option value="'Patrick Hand', cursive">Patrick Hand</option>
-                <option value="'Kalam', cursive">Kalam</option>
                 <option value="'Amatic SC', cursive">Amatic SC</option>
-                <option value="'Permanent Marker', cursive">Permanent Marker</option>
-                <option value="'Pacifico', cursive">Pacifico</option>
-                <option value="'Marck Script', cursive">Marck Script</option>
+                <option value="'Zeyada', cursive">Zeyada</option>
+                <option value="'Just Another Hand', cursive">Just Another Hand</option>
+                <option value="'Reenie Beanie', cursive">Reenie Beanie</option>
+                <option value="'Nanum Pen Script', cursive">Nanum Pen Script</option>
+                <option value="'Nothing You Could Do', cursive">Nothing You Could Do</option>
+                <option value="'Waiting for the Sunrise', cursive">Waiting for the Sunrise</option>
+                <option value="'Covered By Your Grace', cursive">Covered By Your Grace</option>
+                <option value="'Dawning of a New Day', cursive">Dawning of a New Day</option>
             </select>
         </div>
 
         <div class="input-group">
             <label>🎨 لون الدرجات</label>
             <input type="color" id="grade-color-input" value="#0000cd" oninput="renderPages()" style="height: 38px; width: 100%; padding: 2px; cursor: pointer;">
+        </div>
+
+        <div class="input-group">
+            <label>🔀 اصطفاف عشوائي للأرقام</label>
+            <select id="random-align-toggle" onchange="renderPages()">
+                <option value="on" selected>مفعل (عشوائي)</option>
+                <option value="off">مغلق (منتظم)</option>
+            </select>
         </div>
         
         <div class="input-group">
@@ -300,7 +311,7 @@
 
         <div class="input-group">
             <label>✍️ اسم هيئة التدريس (الأساسي)</label>
-            <input type="text" id="instructor-input" value="د/عضو هيئة تدريس" oninput="renderPages()">
+            <input type="text" id="instructor-input" value="د/ عضو هيئة تدريس" oninput="renderPages()">
         </div>
 
         <div class="input-group">
@@ -544,23 +555,24 @@
             const inst1 = document.getElementById('instructor-input').value;
             const inst2 = document.getElementById('instructor2-input').value;
             
-            // قراءة المتغيرات الخاصة بالخط واللون
+            // قراءة المتغيرات الخاصة بالخط واللون والعشوائية
             const gradeFont = document.getElementById('grade-font-select').value;
             const gradeColor = document.getElementById('grade-color-input').value;
+            const isRandomAlign = document.getElementById('random-align-toggle').value === 'on';
 
             if (globalStudentsData.length === 0) {
-                wrapper.innerHTML = createPageHTML([], semester, year, dept, section, course, reportType, subType, lastCol, inst1, inst2, gradeFont, gradeColor);
+                wrapper.innerHTML = createPageHTML([], semester, year, dept, section, course, reportType, subType, lastCol, inst1, inst2, gradeFont, gradeColor, isRandomAlign);
                 return;
             }
 
             const chunkSize = 25; 
             for (let i = 0; i < globalStudentsData.length; i += chunkSize) {
                 const chunk = globalStudentsData.slice(i, i + chunkSize);
-                wrapper.innerHTML += createPageHTML(chunk, semester, year, dept, section, course, reportType, subType, lastCol, inst1, inst2, gradeFont, gradeColor);
+                wrapper.innerHTML += createPageHTML(chunk, semester, year, dept, section, course, reportType, subType, lastCol, inst1, inst2, gradeFont, gradeColor, isRandomAlign);
             }
         }
 
-        function createPageHTML(chunkData, semester, year, dept, section, course, reportType, subType, lastCol, inst1, inst2, gradeFont, gradeColor) {
+        function createPageHTML(chunkData, semester, year, dept, section, course, reportType, subType, lastCol, inst1, inst2, gradeFont, gradeColor, isRandomAlign) {
             let rowsHTML = '';
             if (chunkData.length === 0) {
                 rowsHTML = `<tr><td colspan="6" style="padding: 20px;">الرجاء تحميل ملف الإكسيل لعرض البيانات</td></tr>`;
@@ -569,14 +581,18 @@
                     let statusTxt = row[4] || '';
                     let statusStyle = statusTxt.length > 7 ? 'font-size: 10px; letter-spacing: -0.5px;' : 'font-size: 13px;';
                     
-                    // معالجة الأرقام في العمود الأخير لجعلها تبدو مكتوبة يدوياً بشكل واقعي وعشوائي أفقياً ورأسياً
+                    // معالجة الأرقام في العمود الأخير بناءً على خيار العشوائية
                     let gradeTxt = row[5] !== undefined ? String(row[5]).trim() : '';
                     if (/\d/.test(gradeTxt)) {
-                        let randomRotate = (Math.random() * 8 - 4).toFixed(1); // دوران من -4 إلى +4 درجات
-                        let randomY = (Math.random() * 4 - 2).toFixed(1); // إزاحة عمودية
-                        let randomX = (Math.random() * 12 - 6).toFixed(1); // إزاحة أفقية (لعدم الاصطفاف الرأسي المثالي)
+                        let transformStyle = '';
+                        if (isRandomAlign) {
+                            let randomRotate = (Math.random() * 8 - 4).toFixed(1); 
+                            let randomY = (Math.random() * 4 - 2).toFixed(1); 
+                            let randomX = (Math.random() * 12 - 6).toFixed(1); 
+                            transformStyle = `transform: translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg);`;
+                        }
                         
-                        gradeTxt = `<span style="font-family: ${gradeFont}; color: ${gradeColor}; font-weight: bold; font-size: 21px; display: inline-block; transform: translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg);">${gradeTxt}</span>`;
+                        gradeTxt = `<span style="font-family: ${gradeFont}; color: ${gradeColor}; font-weight: bold; font-size: 21px; display: inline-block; ${transformStyle}">${gradeTxt}</span>`;
                     }
 
                     rowsHTML += `
