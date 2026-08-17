@@ -204,16 +204,13 @@
             <input type="file" id="excel-file" accept=".xlsx, .xls">
         </div>
 
-        <!-- الخيار الثاني: قراءة من نفس المسار (قائمة منسدلة) -->
+        <!-- الخيار الثاني: قراءة من نفس المسار (قائمة منسدلة ديناميكية) -->
         <div class="input-group">
             <label>📂 قراءة ملف (من نفس مسار GitHub)</label>
             <div style="display: flex; gap: 5px;">
                 <select id="local-file-name" style="flex:1;">
-                    <option value="data.xlsx" selected>data.xlsx</option>
-                    <option value="grades.xlsx">grades.xlsx</option>
-                    <option value="report.xlsx">report.xlsx</option>
-                    <option value="sheet1.xlsx">sheet1.xlsx</option>
-                    <!-- يمكنك إضافة المزيد من أسماء الملفات هنا -->
+                    <option value="" disabled selected>جاري البحث عن ملفات...</option>
+                    <option value="data.xlsx">data.xlsx (افتراضي)</option>
                 </select>
                 <button class="btn-info" onclick="loadLocalFile()" title="قراءة الملف من الخادم">تحميل</button>
             </div>
@@ -281,7 +278,7 @@
 
         <div class="input-group">
             <label>✍️ اسم هيئة التدريس (الأساسي)</label>
-            <input type="text" id="instructor-input" value="د/اسم عضو هيئة التدريس" oninput="renderPages()">
+            <input type="text" id="instructor-input" value="د/ الاء توفيق رمضان راجح" oninput="renderPages()">
         </div>
 
         <div class="input-group">
@@ -313,7 +310,82 @@
         let uiVisible = true;
         let globalStudentsData = []; 
 
-        window.onload = function() { renderPages(); }
+        window.onload = function() { 
+            renderPages(); 
+            autoLoadExcelFiles(); // جلب قائمة الملفات ديناميكياً عند بدء التشغيل
+        }
+
+        // --- دالة جلب قائمة الملفات التلقائية (GitHub API / Local Fetch) ---
+        async function autoLoadExcelFiles() {
+            const select = document.getElementById('local-file-name');
+            const host = window.location.hostname;
+            const path = window.location.pathname;
+
+            try {
+                // محاولة 1: استخراج البيانات من GitHub API إذا كان الموقع مرفوعاً على GitHub Pages
+                if (host.includes('github.io')) {
+                    const username = host.split('.')[0];
+                    const repo = path.split('/')[1] || '';
+                    
+                    if (username) {
+                        const response = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/`);
+                        if (response.ok) {
+                            const files = await response.json();
+                            const excelFiles = files.filter(f => f.name.endsWith('.xlsx') || f.name.endsWith('.xls'));
+                            
+                            if (excelFiles.length > 0) {
+                                select.innerHTML = '';
+                                excelFiles.forEach((file, index) => {
+                                    const option = document.createElement('option');
+                                    option.value = file.name;
+                                    option.textContent = file.name;
+                                    if (index === 0) option.selected = true;
+                                    select.appendChild(option);
+                                });
+                                return; // تم الجلب بنجاح
+                            } else {
+                                select.innerHTML = '<option value="" disabled>لا يوجد ملفات اكسيل في المستودع</option>';
+                                return;
+                            }
+                        }
+                    }
+                } 
+                
+                // محاولة 2: قراءة مسار المجلد (تعمل في السيرفرات المحلية Localhost)
+                const res = await fetch('./');
+                if (res.ok) {
+                    const text = await res.text();
+                    const regex = /href="([^"]+\.(xlsx|xls))"/gi;
+                    let match;
+                    const localFiles = [];
+                    
+                    while ((match = regex.exec(text)) !== null) {
+                        let fileName = match[1].replace(/^\.\//, ''); // إزالة ./ إن وجدت
+                        if (!localFiles.includes(fileName)) {
+                            localFiles.push(decodeURIComponent(fileName));
+                        }
+                    }
+                    
+                    if (localFiles.length > 0) {
+                        select.innerHTML = '';
+                        localFiles.forEach((f, index) => {
+                            const option = document.createElement('option');
+                            option.value = f;
+                            option.textContent = f;
+                            if(index === 0) option.selected = true;
+                            select.appendChild(option);
+                        });
+                        return;
+                    }
+                }
+                
+                // إذا لم يجد شيئاً (الحالة الافتراضية)
+                select.innerHTML = '<option value="data.xlsx">data.xlsx</option>';
+            } catch (error) {
+                console.log("استخدام الخيارات الافتراضية لعدم توفر API للاستعراض");
+                select.innerHTML = '<option value="data.xlsx">data.xlsx</option>';
+            }
+        }
 
         // 1. القراءة من ملف محلي (جهاز الكمبيوتر)
         document.getElementById('excel-file').addEventListener('change', function(e) {
@@ -332,6 +404,10 @@
         // 2. القراءة من ملف مرفوع على نفس مسار السيرفر / GitHub
         function loadLocalFile() {
             const fileName = document.getElementById('local-file-name').value;
+            if(!fileName) {
+                alert("يرجى اختيار ملف أولاً");
+                return;
+            }
             fetch(fileName)
                 .then(response => {
                     if (!response.ok) throw new Error("File not found");
@@ -361,11 +437,11 @@
                     const row = sheetData[i];
                     const rowStr = row.join('').replace(/\s/g, '');
                     
-                    // البحث عن صف العناوين (يحتوي غالباً على رقم الجلوس واسم الطالب أو الكود)
+                    // البحث عن صف العناوين
                     if (rowStr.includes("رقمالجلوس") || rowStr.includes("اسمالطالب") || rowStr.includes("الكود")) {
                         headerFound = true;
                         
-                        // تحديد أماكن الأعمدة ديناميكياً بناءً على محتواها
+                        // تحديد أماكن الأعمدة ديناميكياً
                         for (let c = 0; c < row.length; c++) {
                             let val = String(row[c]).trim();
                             if (!val) continue;
@@ -378,7 +454,6 @@
                             else if (val.includes("اعمال") || val.includes("درجة") || val.includes("مجموع")) hIdx.grade = c;
                         }
                         
-                        // في حال لم نجد عمود للدرجة صراحة، نلتقط العمود الأخير
                         if (hIdx.grade === -1) {
                             let maxIdx = Math.max(hIdx.m, hIdx.seat, hIdx.name, hIdx.code, hIdx.status);
                             hIdx.grade = maxIdx + 1;
@@ -387,7 +462,7 @@
                         // قراءة بيانات الطلاب أسفل صف العناوين
                         for (let j = i + 1; j < sheetData.length; j++) {
                             const dataRow = sheetData[j];
-                            if (dataRow.join('').trim() === '') continue; // تجاهل الصفوف الفارغة
+                            if (dataRow.join('').trim() === '') continue; 
                             
                             const mVal = hIdx.m !== -1 ? String(dataRow[hIdx.m] || '').trim() : '';
                             const seatVal = hIdx.seat !== -1 ? String(dataRow[hIdx.seat] || '').trim() : '';
@@ -395,20 +470,19 @@
                             const codeVal = hIdx.code !== -1 ? String(dataRow[hIdx.code] || '').trim() : '';
                             let statusVal = hIdx.status !== -1 ? String(dataRow[hIdx.status] || '').trim() : 'مستجد';
                             
-                            if (statusVal === '') statusVal = 'مستجد'; // الحالة الافتراضية
+                            if (statusVal === '') statusVal = 'مستجد'; 
                             
                             const gradeVal = hIdx.grade !== -1 ? String(dataRow[hIdx.grade] || '').trim() : '';
 
-                            // التأكد من عدم إضافة صفوف تالفة
                             if (nameVal === '' && seatVal === '') continue;
 
                             globalStudentsData.push([mVal, seatVal, nameVal, codeVal, statusVal, gradeVal]);
                         }
-                        break; // إنهاء البحث في هذه الورقة بمجرد العثور على الجدول
+                        break; 
                     }
                 }
                 
-                // --- معالجة احتياطية في حال لم يتمكن من تحديد الهيدر ---
+                // --- معالجة احتياطية ---
                 if (!headerFound) {
                     sheetData.forEach(row => {
                         if (row.join('').trim() === '') return;
@@ -453,7 +527,7 @@
                 return;
             }
 
-            const chunkSize = 25; // 25 طالب في كل صفحة ليتطابق مع الـ PDF المرجعي
+            const chunkSize = 25; 
             for (let i = 0; i < globalStudentsData.length; i += chunkSize) {
                 const chunk = globalStudentsData.slice(i, i + chunkSize);
                 wrapper.innerHTML += createPageHTML(chunk, semester, year, dept, section, course, reportType, subType, lastCol, inst1, inst2);
@@ -466,7 +540,6 @@
                 rowsHTML = `<tr><td colspan="6" style="padding: 20px;">الرجاء تحميل ملف الإكسيل لعرض البيانات</td></tr>`;
             } else {
                 chunkData.forEach(row => {
-                    // الصف يتكون من: م، رقم الجلوس، الاسم، الكود، الحالة، الدرجة (بناءً على الترتيب الذكي المستخرج)
                     rowsHTML += `
                         <tr>
                             <td>${row[0]}</td>
