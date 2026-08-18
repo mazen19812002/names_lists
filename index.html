@@ -217,7 +217,7 @@
             white-space: nowrap; 
         }
 
-        /* Signature Layout Modified to match Image Structure */
+        /* Signature Layout - Modified for Zero Shift */
         .signature-area {
             margin-top: 5px; 
             font-size: 15px;
@@ -229,7 +229,8 @@
         .sig-group-right { display: flex; gap: 20px; }
         .sig-col { display: flex; flex-direction: column; gap: 5px; }
         .sig-col.right { text-align: right; align-items: flex-start; }
-        .sig-col.left { text-align: left; align-items: flex-end; }
+        .sig-col.center { text-align: center; align-items: center; }
+        .sig-col.left { text-align: center; align-items: center; min-width: 120px;}
 
         /* === Print Media Queries === */
         @media print {
@@ -317,6 +318,17 @@
                 </label>
             </div>
         </div>
+
+        <div class="input-group">
+            <label>📝 اعتماد الكنترول</label>
+            <div class="switch-container">
+                <span class="switch-label" id="lbl-approve">مخفي</span>
+                <label class="switch">
+                    <input type="checkbox" id="approve-toggle" onchange="document.getElementById('lbl-approve').textContent = this.checked ? 'ظاهر' : 'مخفي'; renderPages()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
         
         <div class="input-group">
             <label>📖 الفصل الدراسي</label>
@@ -386,7 +398,11 @@
 
         <div class="input-group">
             <label>📑 نوع التقرير</label>
-            <input type="text" id="subtype-input" value="درجات بعد الاعتماد" oninput="renderPages()">
+            <select id="subtype-input" onchange="renderPages()">
+                <option value="" selected>فارغ</option>
+                <option value="درجات بعد الاعتماد">درجات بعد الاعتماد</option>
+                <option value="درجات قبل الاعتماد">درجات قبل الاعتماد</option>
+            </select>
         </div>
 
         <div class="input-group">
@@ -444,7 +460,7 @@
         let globalStudentsData = []; 
 
         const trackInputs = [
-            'grade-font-select', 'grade-color-input', 'random-align-toggle', 'table-weight-toggle',
+            'grade-font-select', 'grade-color-input', 'random-align-toggle', 'table-weight-toggle', 'approve-toggle',
             'semester-select', 'academic-year-select', 'year-select', 'dept-select', 'section-select',
             'course-input', 'type-input', 'subtype-input', 'last-col-input',
             'instructor-label-input', 'instructor-input', 'instructor2-input', 'instructor3-input'
@@ -476,6 +492,7 @@
                         el.checked = (savedVal === 'true');
                         if(id === 'random-align-toggle') document.getElementById('lbl-random').textContent = el.checked ? 'عشوائي' : 'منتظم';
                         if(id === 'table-weight-toggle') document.getElementById('lbl-weight').textContent = el.checked ? 'عريض' : 'عادي';
+                        if(id === 'approve-toggle') document.getElementById('lbl-approve').textContent = el.checked ? 'ظاهر' : 'مخفي';
                     } else {
                         el.value = savedVal;
                     }
@@ -682,7 +699,7 @@
         }
 
         function renderPages() {
-            saveInputData(); // حفظ الإعدادات تلقائياً عند أي تعديل
+            saveInputData(); 
 
             const wrapper = document.getElementById('report-wrapper');
             wrapper.innerHTML = ''; 
@@ -706,6 +723,7 @@
             const gradeColor = document.getElementById('grade-color-input').value;
             const isRandomAlign = document.getElementById('random-align-toggle').checked;
             const isTableBold = document.getElementById('table-weight-toggle').checked;
+            const isApproved = document.getElementById('approve-toggle').checked;
 
             const chunkSize = 25;
             let totalPages = 1;
@@ -715,18 +733,18 @@
             }
 
             if (globalStudentsData.length === 0) {
-                wrapper.innerHTML = createPageHTML([], semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold, 1, 1);
+                wrapper.innerHTML = createPageHTML([], semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold, isApproved, 1, 1);
                 return;
             }
 
             for (let i = 0; i < globalStudentsData.length; i += chunkSize) {
                 const chunk = globalStudentsData.slice(i, i + chunkSize);
                 let pageNum = Math.floor(i / chunkSize) + 1;
-                wrapper.innerHTML += createPageHTML(chunk, semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold, pageNum, totalPages);
+                wrapper.innerHTML += createPageHTML(chunk, semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold, isApproved, pageNum, totalPages);
             }
         }
 
-        function createPageHTML(chunkData, semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold, pageNum, totalPages) {
+        function createPageHTML(chunkData, semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold, isApproved, pageNum, totalPages) {
             let rowsHTML = '';
             
             let weightClass = isTableBold ? 'fw-bold' : 'fw-normal';
@@ -841,10 +859,15 @@
                             ${inst3NameHtml}
                         </div>
                     </div>
-                    <div class="sig-col left">
+                    <div class="sig-col center">
                         <span>(---------------------)</span>
                         ${inst2LineHtml}
                         ${inst3LineHtml}
+                    </div>
+                    <div class="sig-col left" style="visibility: ${isApproved ? 'visible' : 'hidden'};">
+                        <span>يعتمد،،،</span>
+                        <span style="visibility:hidden;">-</span>
+                        <span>رئيس الكنترول</span>
                     </div>
                 </div>
 
