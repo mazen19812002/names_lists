@@ -34,19 +34,19 @@
             overflow-x: hidden;
         }
 
-        /* === Control Panel (Compact, Narrower & Packed) === */
+        /* === Control Panel (Compact, Fluid & Packed) === */
         #control-panel {
             background: var(--glass-bg);
             border-bottom: 1px solid var(--glass-border);
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
-            padding: 10px;
-            margin: 8px;
+            padding: 12px;
+            margin: 10px;
             border-radius: 12px;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 8px 10px;
+            flex-wrap: wrap; /* الانسيابية لملء الفراغات */
+            justify-content: flex-start;
+            gap: 10px;
             align-items: end;
             transition: all 0.3s ease;
         }
@@ -87,10 +87,10 @@
         button:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .btn-info { background: var(--btn-info); padding: 4px 10px; border-radius: 6px; height: 26px;}
         
-        /* === Switch Button Styles (Narrow & Compact) === */
+        /* === Switch Button Styles === */
         .switch-container {
             display: flex; align-items: center; justify-content: space-between;
-            background: #fff; padding: 0 6px; border: 1px solid #ccc; border-radius: 6px;
+            background: #fff; padding: 4px 8px; border: 1px solid #ccc; border-radius: 6px;
             height: 26px; box-sizing: border-box; width: 100%;
         }
         .switch-label { font-size: 11px; font-weight: bold; color: #333; }
@@ -274,7 +274,24 @@
     <!-- Control Panel -->
     <div id="control-panel">
         
-        <!-- 1. أزرار التنسيق -->
+        <!-- 1. مصادر البيانات (الأولوية في أقصى اليمين) -->
+        <div class="input-group wide">
+            <label>📁 شيت إكسيل (من الجهاز)</label>
+            <input type="file" id="excel-file" accept=".xlsx, .xls">
+        </div>
+
+        <div class="input-group wide">
+            <label>📂 قراءة ملف (من GitHub)</label>
+            <div style="display: flex; gap: 3px;">
+                <select id="local-file-name" style="flex:1;">
+                    <option value="" disabled selected>جاري البحث...</option>
+                    <option value="data.xlsx">data.xlsx (افتراضي)</option>
+                </select>
+                <button class="btn-info" onclick="loadLocalFile()" title="قراءة الملف من الخادم">تحميل</button>
+            </div>
+        </div>
+
+        <!-- 2. أزرار التنسيق (تليها مباشرة) -->
         <div class="input-group">
             <label>🔠 خط الجدول</label>
             <div class="switch-container">
@@ -326,35 +343,7 @@
             </div>
         </div>
 
-        <div class="input-group">
-            <label>📝 اعتماد الكنترول</label>
-            <div class="switch-container">
-                <span class="switch-label" id="lbl-approve">مخفي</span>
-                <label class="switch">
-                    <input type="checkbox" id="approve-toggle" onchange="document.getElementById('lbl-approve').textContent = this.checked ? 'ظاهر' : 'مخفي'; renderPages()">
-                    <span class="slider"></span>
-                </label>
-            </div>
-        </div>
-
-        <!-- 2. ملفات الإدخال -->
-        <div class="input-group wide">
-            <label>📁 شيت إكسيل (من الجهاز)</label>
-            <input type="file" id="excel-file" accept=".xlsx, .xls">
-        </div>
-
-        <div class="input-group wide">
-            <label>📂 قراءة ملف (من GitHub)</label>
-            <div style="display: flex; gap: 3px;">
-                <select id="local-file-name" style="flex:1;">
-                    <option value="" disabled selected>جاري البحث...</option>
-                    <option value="data.xlsx">data.xlsx (افتراضي)</option>
-                </select>
-                <button class="btn-info" onclick="loadLocalFile()" title="قراءة الملف من الخادم">تحميل</button>
-            </div>
-        </div>
-
-        <!-- 3. بيانات التقرير -->
+        <!-- 3. عناصر التقرير المرئية -->
         <div class="input-group">
             <label>📖 الفصل الدراسي</label>
             <select id="semester-select" onchange="renderPages()">
@@ -463,6 +452,19 @@
             <input type="text" id="instructor3-input" placeholder="اتركه فارغاً إذا لم يوجد" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_instructor3-input">
             <datalist id="dl_instructor3-input"></datalist>
         </div>
+
+        <!-- 4. أخيراً: زرار الاعتماد (أقصى اليسار) -->
+        <div class="input-group">
+            <label>📝 اعتماد الكنترول</label>
+            <div class="switch-container">
+                <span class="switch-label" id="lbl-approve">مخفي</span>
+                <label class="switch">
+                    <input type="checkbox" id="approve-toggle" onchange="document.getElementById('lbl-approve').textContent = this.checked ? 'ظاهر' : 'مخفي'; renderPages()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
     </div>
 
     <!-- مجموعة الأزرار العائمة -->
@@ -817,7 +819,6 @@
                     
                     let gradeTxt = row[5] !== undefined ? String(row[5]).trim() : '';
                     if (gradeTxt !== '') {
-                        // إضافة شرط التحقق من حروف الغياب أو الحرمان (غ / ح)
                         if (gradeTxt === 'غ' || gradeTxt === 'ح') {
                             gradeTxt = `<span style="font-family: 'Cairo', sans-serif; color: ${gradeColor}; font-weight: bold; font-size: 14px; display: inline-block; border: 1px solid red; padding: 1px 6px; line-height: 1.1; border-radius: 2px;">${gradeTxt}</span>`;
                         } else {
