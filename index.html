@@ -749,7 +749,7 @@
             const reportType = document.getElementById('type-input').value;
             const subType = document.getElementById('subtype-input').value;
             
-            // الدمج الذكي للعمود الأخير مع الدرجة المدخلة
+            // الدمج الذكي للعمود الأخير مع الدرجة وإلغاء التكرار
             const gradeValInput = document.getElementById('last-col-input').value.trim();
             const lastCol = gradeValInput !== '' ? `${reportType} [${gradeValInput}]` : reportType;
             
