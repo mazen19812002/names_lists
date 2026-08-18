@@ -217,7 +217,7 @@
             white-space: nowrap; 
         }
 
-        /* Signature Layout - Dynamically aligned */
+        /* Signature Layout */
         .signature-area {
             margin-top: 5px; 
             font-size: 15px;
@@ -381,7 +381,6 @@
             </select>
         </div>
 
-        <!-- حقول النص المزودة بخاصية الإكمال التلقائي الذكية -->
         <div class="input-group">
             <label>📚 المقرر الدراسي</label>
             <input type="text" id="course-input" value="لغة انجليزية فنية" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_course-input">
@@ -489,13 +488,12 @@
             });
         }
 
-        // دالة حفظ سجل النصوص في الداتا ليست (تعمل فقط عند الانتهاء من الكتابة onchange)
         function saveHistoryData(id, value) {
             if (value.trim() === '') return;
             let history = JSON.parse(localStorage.getItem('hist_' + id) || '[]');
             history = history.filter(v => v !== value); 
             history.unshift(value); 
-            if(history.length > 7) history.pop(); // حفظ آخر 7 إدخالات فقط
+            if(history.length > 7) history.pop(); 
             localStorage.setItem('hist_' + id, JSON.stringify(history));
             populateDatalist(id);
         }
@@ -528,7 +526,6 @@
                     }
                 }
                 
-                // ملء الداتا ليست للنصوص عند تحميل الصفحة
                 if (el && el.type === 'text' && document.getElementById('dl_' + id)) {
                     populateDatalist(id);
                 }
@@ -792,7 +789,7 @@
                     let statusStyle = statusTxt.length > 7 ? 'font-size: 10px; letter-spacing: -0.5px;' : 'font-size: 13px;';
                     
                     let gradeTxt = row[5] !== undefined ? String(row[5]).trim() : '';
-                    if (/\d/.test(gradeTxt)) {
+                    if (gradeTxt !== '') {
                         let transformStyle = '';
                         if (isRandomAlign && gradeFont.includes('cursive')) {
                             let randomRotate = (Math.random() * 8 - 4).toFixed(1); 
@@ -803,7 +800,7 @@
                         
                         let lineHeightStyle = gradeFont.includes('cursive') ? 'line-height: 0.5;' : '';
                         
-                        gradeTxt = `<span style="font-family: ${gradeFont}; color: ${gradeColor}; font-weight: bold; font-size: 21px; display: inline-block; ${lineHeightStyle} ${transformStyle}">${gradeTxt}</span>`;
+                        gradeTxt = `<span style="font-family: ${gradeFont}, 'Cairo', sans-serif; color: ${gradeColor}; font-weight: bold; font-size: 21px; display: inline-block; ${lineHeightStyle} ${transformStyle}">${gradeTxt}</span>`;
                     }
 
                     rowsHTML += `
