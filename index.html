@@ -274,7 +274,7 @@
     <!-- Control Panel -->
     <div id="control-panel">
         
-        <!-- 1. أزرار التنسيق (في القمة) -->
+        <!-- 1. أزرار التنسيق -->
         <div class="input-group">
             <label>🔠 خط الجدول</label>
             <div class="switch-container">
@@ -354,7 +354,7 @@
             </div>
         </div>
 
-        <!-- 3. بيانات التقرير - الصف الأول (يمين إلى يسار) -->
+        <!-- 3. بيانات التقرير -->
         <div class="input-group">
             <label>📖 الفصل الدراسي</label>
             <select id="semester-select" onchange="renderPages()">
@@ -374,7 +374,6 @@
             </select>
         </div>
 
-        <!-- بيانات التقرير - الصف الثاني (يمين إلى يسار) -->
         <div class="input-group">
             <label>🏛️ القسم</label>
             <select id="dept-select" onchange="renderPages()">
@@ -407,7 +406,6 @@
             </select>
         </div>
 
-        <!-- بيانات التقرير - الصف الثالث (يمين إلى يسار) -->
         <div class="input-group">
             <label>📚 المقرر الدراسي</label>
             <input type="text" id="course-input" value="لغة انجليزية فنية" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_course-input">
@@ -433,7 +431,6 @@
             </select>
         </div>
 
-        <!-- بيانات التقرير - محتوى الجدول والتوقيعات (يمين إلى يسار) -->
         <div class="input-group">
             <label>📊 درجة العمود الأخير</label>
             <input type="text" id="last-col-input" value="10" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_last-col-input">
@@ -820,17 +817,22 @@
                     
                     let gradeTxt = row[5] !== undefined ? String(row[5]).trim() : '';
                     if (gradeTxt !== '') {
-                        let transformStyle = '';
-                        if (isRandomAlign && gradeFont.includes('cursive')) {
-                            let randomRotate = (Math.random() * 8 - 4).toFixed(1); 
-                            let randomY = (Math.random() * 4 - 2).toFixed(1); 
-                            let randomX = (Math.random() * 12 - 6).toFixed(1); 
-                            transformStyle = `transform: translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg);`;
+                        // إضافة شرط التحقق من حروف الغياب أو الحرمان (غ / ح)
+                        if (gradeTxt === 'غ' || gradeTxt === 'ح') {
+                            gradeTxt = `<span style="font-family: 'Cairo', sans-serif; color: ${gradeColor}; font-weight: bold; font-size: 14px; display: inline-block; border: 1px solid red; padding: 1px 6px; line-height: 1.1; border-radius: 2px;">${gradeTxt}</span>`;
+                        } else {
+                            let transformStyle = '';
+                            if (isRandomAlign && gradeFont.includes('cursive')) {
+                                let randomRotate = (Math.random() * 8 - 4).toFixed(1); 
+                                let randomY = (Math.random() * 4 - 2).toFixed(1); 
+                                let randomX = (Math.random() * 12 - 6).toFixed(1); 
+                                transformStyle = `transform: translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg);`;
+                            }
+                            
+                            let lineHeightStyle = gradeFont.includes('cursive') ? 'line-height: 0.5;' : '';
+                            
+                            gradeTxt = `<span style="font-family: ${gradeFont}, 'Cairo', sans-serif; color: ${gradeColor}; font-weight: bold; font-size: ${gradeSize}px; display: inline-block; ${lineHeightStyle} ${transformStyle}">${gradeTxt}</span>`;
                         }
-                        
-                        let lineHeightStyle = gradeFont.includes('cursive') ? 'line-height: 0.5;' : '';
-                        
-                        gradeTxt = `<span style="font-family: ${gradeFont}, 'Cairo', sans-serif; color: ${gradeColor}; font-weight: bold; font-size: ${gradeSize}px; display: inline-block; ${lineHeightStyle} ${transformStyle}">${gradeTxt}</span>`;
                     }
 
                     rowsHTML += `
