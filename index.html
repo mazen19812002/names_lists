@@ -52,12 +52,12 @@
 
         .input-group { display: flex; flex-direction: column; gap: 3px; }
         label { font-weight: bold; font-size: 12px; color: #1e3c72; }
-        input[type="text"], input[type="file"], select {
+        input[type="text"], input[type="file"], input[type="number"], select {
             padding: 5px 8px; border: 1px solid #ccc; border-radius: 6px;
             font-size: 12px; outline: none; transition: border-color 0.3s;
             font-family: 'Segoe UI', sans-serif; background: #fff;
         }
-        input[type="text"]:focus, select:focus { border-color: #2a5298; }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: #2a5298; }
         input[type="color"] { height: 28px !important; width: 60px !important; padding: 1px; cursor: pointer; border-radius: 6px; }
 
         button {
@@ -217,7 +217,7 @@
             white-space: nowrap; 
         }
 
-        /* Signature Layout */
+        /* Signature Layout - Dynamically aligned */
         .signature-area {
             margin-top: 5px; 
             font-size: 15px;
@@ -290,6 +290,12 @@
                 <option value="'Covered By Your Grace', cursive">Covered By Your Grace (يدوي)</option>
                 <option value="'Dawning of a New Day', cursive">Dawning of a New Day (يدوي)</option>
             </select>
+        </div>
+
+        <!-- حقل جديد لاختيار حجم الخط -->
+        <div class="input-group">
+            <label>📏 حجم الدرجات</label>
+            <input type="number" id="grade-size-input" value="21" min="10" max="40" oninput="renderPages()" title="اختر حجم الخط المناسب للدرجات">
         </div>
 
         <div class="input-group">
@@ -465,7 +471,7 @@
         let globalStudentsData = []; 
 
         const trackInputs = [
-            'grade-font-select', 'grade-color-input', 'random-align-toggle', 'table-weight-toggle', 'approve-toggle',
+            'grade-font-select', 'grade-color-input', 'grade-size-input', 'random-align-toggle', 'table-weight-toggle', 'approve-toggle',
             'semester-select', 'academic-year-select', 'year-select', 'dept-select', 'section-select',
             'course-input', 'type-input', 'subtype-input', 'last-col-input',
             'instructor-label-input', 'instructor-input', 'instructor2-input', 'instructor3-input'
@@ -526,7 +532,7 @@
                     }
                 }
                 
-                if (el && el.type === 'text' && document.getElementById('dl_' + id)) {
+                if (el && (el.type === 'text' || el.type === 'number') && document.getElementById('dl_' + id)) {
                     populateDatalist(id);
                 }
             });
@@ -753,6 +759,7 @@
             
             const gradeFont = document.getElementById('grade-font-select').value;
             const gradeColor = document.getElementById('grade-color-input').value;
+            const gradeSize = document.getElementById('grade-size-input').value || 21;
             const isRandomAlign = document.getElementById('random-align-toggle').checked;
             const isTableBold = document.getElementById('table-weight-toggle').checked;
             const isApproved = document.getElementById('approve-toggle').checked;
@@ -765,18 +772,18 @@
             }
 
             if (globalStudentsData.length === 0) {
-                wrapper.innerHTML = createPageHTML([], semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold, isApproved, 1, 1);
+                wrapper.innerHTML = createPageHTML([], semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, gradeSize, isRandomAlign, isTableBold, isApproved, 1, 1);
                 return;
             }
 
             for (let i = 0; i < globalStudentsData.length; i += chunkSize) {
                 const chunk = globalStudentsData.slice(i, i + chunkSize);
                 let pageNum = Math.floor(i / chunkSize) + 1;
-                wrapper.innerHTML += createPageHTML(chunk, semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold, isApproved, pageNum, totalPages);
+                wrapper.innerHTML += createPageHTML(chunk, semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, gradeSize, isRandomAlign, isTableBold, isApproved, pageNum, totalPages);
             }
         }
 
-        function createPageHTML(chunkData, semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold, isApproved, pageNum, totalPages) {
+        function createPageHTML(chunkData, semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, gradeSize, isRandomAlign, isTableBold, isApproved, pageNum, totalPages) {
             let rowsHTML = '';
             
             let weightClass = isTableBold ? 'fw-bold' : 'fw-normal';
@@ -800,7 +807,7 @@
                         
                         let lineHeightStyle = gradeFont.includes('cursive') ? 'line-height: 0.5;' : '';
                         
-                        gradeTxt = `<span style="font-family: ${gradeFont}, 'Cairo', sans-serif; color: ${gradeColor}; font-weight: bold; font-size: 21px; display: inline-block; ${lineHeightStyle} ${transformStyle}">${gradeTxt}</span>`;
+                        gradeTxt = `<span style="font-family: ${gradeFont}, 'Cairo', sans-serif; color: ${gradeColor}; font-weight: bold; font-size: ${gradeSize}px; display: inline-block; ${lineHeightStyle} ${transformStyle}">${gradeTxt}</span>`;
                     }
 
                     rowsHTML += `
