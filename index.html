@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KFS-HIET Final Report Generator</title>
     
-    <!-- Dependencies: Cairo Font, 11 Handwriting Fonts (Straight '1' + Kalam), & SheetJS for Excel processing -->
+    <!-- Dependencies: Cairo Font, Handwriting Fonts, & SheetJS for Excel processing -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amatic+SC:wght@700&family=Caveat:wght@700&family=Zeyada&family=Reenie+Beanie&family=Just+Another+Hand&family=Nanum+Pen+Script&family=Nothing+You+Could+Do&family=Waiting+for+the+Sunrise&family=Covered+By+Your+Grace&family=Dawning+of+a+New+Day&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -34,42 +34,73 @@
             overflow-x: hidden;
         }
 
-        /* === Control Panel (Compact & Narrower) === */
+        /* === Control Panel (Compact, Narrower & Packed) === */
         #control-panel {
             background: var(--glass-bg);
             border-bottom: 1px solid var(--glass-border);
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
-            padding: 12px;
-            margin: 10px;
+            padding: 10px;
+            margin: 8px;
             border-radius: 12px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px 10px;
             align-items: end;
             transition: all 0.3s ease;
         }
 
-        .input-group { display: flex; flex-direction: column; gap: 3px; }
-        label { font-weight: bold; font-size: 12px; color: #1e3c72; }
-        input[type="text"], input[type="file"], input[type="number"], select {
-            padding: 5px 8px; border: 1px solid #ccc; border-radius: 6px;
-            font-size: 12px; outline: none; transition: border-color 0.3s;
-            font-family: 'Segoe UI', sans-serif; background: #fff;
+        .input-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 3px; 
+            width: 130px; 
         }
+        
+        .input-group.wide {
+            width: 190px; 
+        }
+
+        label { font-weight: bold; font-size: 11px; color: #1e3c72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        input[type="text"], input[type="file"], input[type="number"], select {
+            padding: 4px 6px; border: 1px solid #ccc; border-radius: 6px;
+            font-size: 11px; outline: none; transition: border-color 0.3s;
+            font-family: 'Segoe UI', sans-serif; background: #fff;
+            width: 100%; box-sizing: border-box; height: 26px;
+        }
+        
         input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: #2a5298; }
-        input[type="color"] { height: 28px !important; width: 60px !important; padding: 1px; cursor: pointer; border-radius: 6px; }
+        
+        input[type="color"] { 
+            height: 26px !important; width: 100% !important; padding: 1px; 
+            cursor: pointer; border-radius: 6px; box-sizing: border-box; 
+        }
 
         button {
-            padding: 6px 12px; border: none; border-radius: 20px; color: white;
-            font-weight: bold; font-size: 12px; cursor: pointer;
+            border: none; border-radius: 20px; color: white;
+            font-weight: bold; font-size: 11px; cursor: pointer;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;
             display: flex; align-items: center; gap: 5px; justify-content: center;
         }
         button:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .btn-action { background: var(--btn-accept); }
-        .btn-info { background: var(--btn-info); padding: 5px 10px; font-size: 11px; justify-content: center;}
+        .btn-info { background: var(--btn-info); padding: 4px 10px; border-radius: 6px; height: 26px;}
         
+        /* === Switch Button Styles (Narrow & Compact) === */
+        .switch-container {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #fff; padding: 0 6px; border: 1px solid #ccc; border-radius: 6px;
+            height: 26px; box-sizing: border-box; width: 100%;
+        }
+        .switch-label { font-size: 11px; font-weight: bold; color: #333; }
+        .switch { position: relative; display: inline-block; width: 30px; height: 16px; margin: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 16px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; right: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #2a5298; }
+        input:checked + .slider:before { transform: translateX(-14px); }
+
         /* === Floating Tools Container === */
         #floating-tools {
             position: fixed;
@@ -105,20 +136,6 @@
             border-radius: 50%; padding: 0; display: flex; justify-content: center; align-items: center;
             font-size: 18px;
         }
-
-        /* === Switch Button Styles (Narrower) === */
-        .switch-container {
-            display: flex; align-items: center; justify-content: space-between;
-            background: #fff; padding: 4px 8px; border: 1px solid #ccc; border-radius: 6px;
-            height: auto; min-height: 20px; transition: border-color 0.3s;
-        }
-        .switch-label { font-size: 11px; font-weight: bold; color: #333; }
-        .switch { position: relative; display: inline-block; width: 34px; height: 18px; margin: 0; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 18px; }
-        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; right: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #2a5298; }
-        input:checked + .slider:before { transform: translateX(-16px); }
 
         /* === Footer === */
         #animated-footer {
@@ -217,7 +234,7 @@
             white-space: nowrap; 
         }
 
-        /* Signature Layout - Dynamically aligned */
+        /* Signature Layout */
         .signature-area {
             margin-top: 5px; 
             font-size: 15px;
@@ -257,19 +274,15 @@
     <!-- Control Panel -->
     <div id="control-panel">
         
+        <!-- 1. أزرار التنسيق (في القمة) -->
         <div class="input-group">
-            <label>📁 شيت إكسيل (من الجهاز)</label>
-            <input type="file" id="excel-file" accept=".xlsx, .xls">
-        </div>
-
-        <div class="input-group">
-            <label>📂 قراءة ملف (من GitHub)</label>
-            <div style="display: flex; gap: 3px;">
-                <select id="local-file-name" style="flex:1;">
-                    <option value="" disabled selected>جاري البحث...</option>
-                    <option value="data.xlsx">data.xlsx (افتراضي)</option>
-                </select>
-                <button class="btn-info" onclick="loadLocalFile()" title="قراءة الملف من الخادم">تحميل</button>
+            <label>🔠 خط الجدول</label>
+            <div class="switch-container">
+                <span class="switch-label" id="lbl-weight">عريض</span>
+                <label class="switch">
+                    <input type="checkbox" id="table-weight-toggle" checked onchange="document.getElementById('lbl-weight').textContent = this.checked ? 'عريض' : 'عادي'; renderPages()">
+                    <span class="slider"></span>
+                </label>
             </div>
         </div>
 
@@ -314,17 +327,6 @@
         </div>
 
         <div class="input-group">
-            <label>🔠 خط الجدول</label>
-            <div class="switch-container">
-                <span class="switch-label" id="lbl-weight">عريض</span>
-                <label class="switch">
-                    <input type="checkbox" id="table-weight-toggle" checked onchange="document.getElementById('lbl-weight').textContent = this.checked ? 'عريض' : 'عادي'; renderPages()">
-                    <span class="slider"></span>
-                </label>
-            </div>
-        </div>
-
-        <div class="input-group">
             <label>📝 اعتماد الكنترول</label>
             <div class="switch-container">
                 <span class="switch-label" id="lbl-approve">مخفي</span>
@@ -334,7 +336,25 @@
                 </label>
             </div>
         </div>
-        
+
+        <!-- 2. ملفات الإدخال -->
+        <div class="input-group wide">
+            <label>📁 شيت إكسيل (من الجهاز)</label>
+            <input type="file" id="excel-file" accept=".xlsx, .xls">
+        </div>
+
+        <div class="input-group wide">
+            <label>📂 قراءة ملف (من GitHub)</label>
+            <div style="display: flex; gap: 3px;">
+                <select id="local-file-name" style="flex:1;">
+                    <option value="" disabled selected>جاري البحث...</option>
+                    <option value="data.xlsx">data.xlsx (افتراضي)</option>
+                </select>
+                <button class="btn-info" onclick="loadLocalFile()" title="قراءة الملف من الخادم">تحميل</button>
+            </div>
+        </div>
+
+        <!-- 3. بيانات التقرير - الصف الأول (يمين إلى يسار) -->
         <div class="input-group">
             <label>📖 الفصل الدراسي</label>
             <select id="semester-select" onchange="renderPages()">
@@ -354,17 +374,7 @@
             </select>
         </div>
 
-        <div class="input-group">
-            <label>🎓 الفرقة</label>
-            <select id="year-select" onchange="renderPages()">
-                <option value="الاعدادية" selected>الاعدادية</option>
-                <option value="الاولي">الاولي</option>
-                <option value="الثانية">الثانية</option>
-                <option value="الثالثة">الثالثة</option>
-                <option value="الرابعة">الرابعة</option>
-            </select>
-        </div>
-
+        <!-- بيانات التقرير - الصف الثاني (يمين إلى يسار) -->
         <div class="input-group">
             <label>🏛️ القسم</label>
             <select id="dept-select" onchange="renderPages()">
@@ -378,6 +388,17 @@
         </div>
 
         <div class="input-group">
+            <label>🎓 الفرقة</label>
+            <select id="year-select" onchange="renderPages()">
+                <option value="الاعدادية" selected>الاعدادية</option>
+                <option value="الاولي">الاولي</option>
+                <option value="الثانية">الثانية</option>
+                <option value="الثالثة">الثالثة</option>
+                <option value="الرابعة">الرابعة</option>
+            </select>
+        </div>
+
+        <div class="input-group">
             <label>🌿 الشعبة</label>
             <select id="section-select" onchange="renderPages()">
                 <option value="عام" selected>عام</option>
@@ -386,6 +407,7 @@
             </select>
         </div>
 
+        <!-- بيانات التقرير - الصف الثالث (يمين إلى يسار) -->
         <div class="input-group">
             <label>📚 المقرر الدراسي</label>
             <input type="text" id="course-input" value="لغة انجليزية فنية" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_course-input">
@@ -411,6 +433,7 @@
             </select>
         </div>
 
+        <!-- بيانات التقرير - محتوى الجدول والتوقيعات (يمين إلى يسار) -->
         <div class="input-group">
             <label>📊 درجة العمود الأخير</label>
             <input type="text" id="last-col-input" value="10" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_last-col-input">
@@ -470,8 +493,8 @@
         let globalStudentsData = []; 
 
         const trackInputs = [
-            'grade-font-select', 'grade-color-input', 'grade-size-input', 'random-align-toggle', 'table-weight-toggle', 'approve-toggle',
-            'semester-select', 'academic-year-select', 'year-select', 'dept-select', 'section-select',
+            'table-weight-toggle', 'grade-font-select', 'grade-size-input', 'grade-color-input', 'random-align-toggle', 'approve-toggle',
+            'semester-select', 'academic-year-select', 'dept-select', 'year-select', 'section-select',
             'course-input', 'type-input', 'subtype-input', 'last-col-input',
             'instructor-label-input', 'instructor-input', 'instructor2-input', 'instructor3-input'
         ];
@@ -749,7 +772,6 @@
             const reportType = document.getElementById('type-input').value;
             const subType = document.getElementById('subtype-input').value;
             
-            // الدمج الذكي للعمود الأخير مع الدرجة وإلغاء التكرار
             const gradeValInput = document.getElementById('last-col-input').value.trim();
             const lastCol = gradeValInput !== '' ? `${reportType} [${gradeValInput}]` : reportType;
             
