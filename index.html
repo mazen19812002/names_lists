@@ -75,7 +75,7 @@
             bottom: 20px;
             right: 20px;
             display: flex;
-            flex-direction: column; /* ترتيب رأسي */
+            flex-direction: column; 
             gap: 10px;
             align-items: flex-end;
             z-index: 1000;
@@ -259,19 +259,21 @@
         </div>
 
         <div class="input-group">
-            <label>🖋️ خط الدرجات (يدوي - 1 مستقيم)</label>
+            <label>🖋️ خط الدرجات</label>
             <select id="grade-font-select" onchange="renderPages()">
-                <option value="'Caveat', cursive" selected>Caveat</option>
-                <option value="'Kalam', cursive">Kalam</option>
-                <option value="'Amatic SC', cursive">Amatic SC</option>
-                <option value="'Zeyada', cursive">Zeyada</option>
-                <option value="'Just Another Hand', cursive">Just Another Hand</option>
-                <option value="'Reenie Beanie', cursive">Reenie Beanie</option>
-                <option value="'Nanum Pen Script', cursive">Nanum Pen Script</option>
-                <option value="'Nothing You Could Do', cursive">Nothing You Could Do</option>
-                <option value="'Waiting for the Sunrise', cursive">Waiting for the Sunrise</option>
-                <option value="'Covered By Your Grace', cursive">Covered By Your Grace</option>
-                <option value="'Dawning of a New Day', cursive">Dawning of a New Day</option>
+                <option value="'Arial', sans-serif">Arial</option>
+                <option value="'Cairo', sans-serif">Cairo</option>
+                <option value="'Caveat', cursive" selected>Caveat (يدوي)</option>
+                <option value="'Kalam', cursive">Kalam (يدوي)</option>
+                <option value="'Amatic SC', cursive">Amatic SC (يدوي)</option>
+                <option value="'Zeyada', cursive">Zeyada (يدوي)</option>
+                <option value="'Just Another Hand', cursive">Just Another Hand (يدوي)</option>
+                <option value="'Reenie Beanie', cursive">Reenie Beanie (يدوي)</option>
+                <option value="'Nanum Pen Script', cursive">Nanum Pen Script (يدوي)</option>
+                <option value="'Nothing You Could Do', cursive">Nothing You Could Do (يدوي)</option>
+                <option value="'Waiting for the Sunrise', cursive">Waiting for the Sunrise (يدوي)</option>
+                <option value="'Covered By Your Grace', cursive">Covered By Your Grace (يدوي)</option>
+                <option value="'Dawning of a New Day', cursive">Dawning of a New Day (يدوي)</option>
             </select>
         </div>
 
@@ -363,6 +365,11 @@
         </div>
 
         <div class="input-group">
+            <label>🏷️ مسمى أعضاء التدريس</label>
+            <input type="text" id="instructor-label-input" value="أعضاء التدريس:" oninput="renderPages()">
+        </div>
+
+        <div class="input-group">
             <label>✍️ اسم هيئة التدريس (الأساسي)</label>
             <input type="text" id="instructor-input" value="د/ عضو هيئة تدريس" oninput="renderPages()">
         </div>
@@ -370,6 +377,11 @@
         <div class="input-group">
             <label>✍️ اسم عضو إضافي (اختياري)</label>
             <input type="text" id="instructor2-input" placeholder="اتركه فارغاً إذا لم يوجد" oninput="renderPages()">
+        </div>
+
+        <div class="input-group">
+            <label>✍️ اسم عضو إضافي ثالث (اختياري)</label>
+            <input type="text" id="instructor3-input" placeholder="اتركه فارغاً إذا لم يوجد" oninput="renderPages()">
         </div>
     </div>
 
@@ -615,8 +627,10 @@
             const subType = document.getElementById('subtype-input').value;
             const lastCol = document.getElementById('last-col-input').value;
             
+            const instLabel = document.getElementById('instructor-label-input').value;
             const inst1 = document.getElementById('instructor-input').value;
             const inst2 = document.getElementById('instructor2-input').value;
+            const inst3 = document.getElementById('instructor3-input').value;
             
             const gradeFont = document.getElementById('grade-font-select').value;
             const gradeColor = document.getElementById('grade-color-input').value;
@@ -624,18 +638,18 @@
             const isTableBold = document.getElementById('table-weight-toggle').checked;
 
             if (globalStudentsData.length === 0) {
-                wrapper.innerHTML = createPageHTML([], semester, year, dept, section, course, reportType, subType, lastCol, inst1, inst2, gradeFont, gradeColor, isRandomAlign, isTableBold);
+                wrapper.innerHTML = createPageHTML([], semester, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold);
                 return;
             }
 
             const chunkSize = 25; 
             for (let i = 0; i < globalStudentsData.length; i += chunkSize) {
                 const chunk = globalStudentsData.slice(i, i + chunkSize);
-                wrapper.innerHTML += createPageHTML(chunk, semester, year, dept, section, course, reportType, subType, lastCol, inst1, inst2, gradeFont, gradeColor, isRandomAlign, isTableBold);
+                wrapper.innerHTML += createPageHTML(chunk, semester, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold);
             }
         }
 
-        function createPageHTML(chunkData, semester, year, dept, section, course, reportType, subType, lastCol, inst1, inst2, gradeFont, gradeColor, isRandomAlign, isTableBold) {
+        function createPageHTML(chunkData, semester, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold) {
             let rowsHTML = '';
             
             let weightClass = isTableBold ? 'fw-bold' : 'fw-normal';
@@ -675,7 +689,11 @@
 
             let inst2NameHtml = inst2.trim() !== '' ? `<span>${inst2}</span>` : '';
             let inst2LineHtml = inst2.trim() !== '' ? `<span>(---------------------)</span>` : '';
-            let inst2LabelHidden = inst2.trim() !== '' ? `<span style="visibility:hidden;">أعضاء التدريس:</span>` : '';
+            let inst2LabelHidden = inst2.trim() !== '' ? `<span style="visibility:hidden;">${instLabel}</span>` : '';
+
+            let inst3NameHtml = inst3.trim() !== '' ? `<span>${inst3}</span>` : '';
+            let inst3LineHtml = inst3.trim() !== '' ? `<span>(---------------------)</span>` : '';
+            let inst3LabelHidden = inst3.trim() !== '' ? `<span style="visibility:hidden;">${instLabel}</span>` : '';
 
             return `
             <div class="page">
@@ -733,16 +751,19 @@
 
                 <div class="signature-area">
                     <div class="sig-col">
-                        <span>أعضاء التدريس:</span>
+                        <span>${instLabel}</span>
                         ${inst2LabelHidden}
+                        ${inst3LabelHidden}
                     </div>
                     <div class="sig-col center">
                         <span>${inst1}</span>
                         ${inst2NameHtml}
+                        ${inst3NameHtml}
                     </div>
                     <div class="sig-col center">
                         <span>(---------------------)</span>
                         ${inst2LineHtml}
+                        ${inst3LineHtml}
                     </div>
                 </div>
             </div>
