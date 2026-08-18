@@ -152,6 +152,17 @@
             overflow: hidden; 
         }
 
+        /* === Page Numbering === */
+        .page-number {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
         /* === Report Internal Styling === */
         .report-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 6px; }
         .header-text { font-weight: bold; font-size: 15px; line-height: 1.3; }
@@ -248,7 +259,7 @@
         </div>
 
         <div class="input-group">
-            <label>📂 قراءة ملف (من نفس مسار GitHub)</label>
+            <label>📂 قراءة ملف (من مسار GitHub)</label>
             <div style="display: flex; gap: 5px;">
                 <select id="local-file-name" style="flex:1;">
                     <option value="" disabled selected>جاري البحث عن ملفات...</option>
@@ -277,9 +288,10 @@
             </select>
         </div>
 
+        <!-- جعل زر اختيار اللون أضيق (Narrower) -->
         <div class="input-group">
             <label>🎨 لون الدرجات</label>
-            <input type="color" id="grade-color-input" value="#0000cd" oninput="renderPages()" style="height: 38px; width: 100%; padding: 2px; cursor: pointer;">
+            <input type="color" id="grade-color-input" value="#0000cd" oninput="renderPages()" style="height: 38px; width: 70px; padding: 2px; cursor: pointer; border-radius: 8px;">
         </div>
 
         <div class="input-group">
@@ -309,6 +321,18 @@
             <select id="semester-select" onchange="renderPages()">
                 <option value="الفصل الدراسي الاول">الفصل الدراسي الاول</option>
                 <option value="الفصل الدراسي الثاني">الفصل الدراسي الثاني</option>
+            </select>
+        </div>
+
+        <!-- القائمة المنسدلة للعام الجامعي -->
+        <div class="input-group">
+            <label>📅 العام الجامعي</label>
+            <select id="academic-year-select" onchange="renderPages()">
+                <option value="2025/2026" selected>2025/2026</option>
+                <option value="2026/2027">2026/2027</option>
+                <option value="2027/2028">2027/2028</option>
+                <option value="2028/2029">2028/2029</option>
+                <option value="2029/2030">2029/2030</option>
             </select>
         </div>
 
@@ -349,9 +373,15 @@
             <input type="text" id="course-input" value="لغة انجليزية فنية" oninput="renderPages()">
         </div>
 
+        <!-- قائمة النوع الجديدة -->
         <div class="input-group">
             <label>📄 النوع</label>
-            <input type="text" id="type-input" value="اعمال الفصل" oninput="renderPages()">
+            <select id="type-input" onchange="renderPages()">
+                <option value="اعمال الفصل" selected>اعمال الفصل</option>
+                <option value="عملي/شفوي">عملي/شفوي</option>
+                <option value="منتصف الفصل">منتصف الفصل</option>
+                <option value="تحريري">تحريري</option>
+            </select>
         </div>
 
         <div class="input-group">
@@ -482,7 +512,6 @@
             }
         }
 
-        // دالة إنشاء وتحميل قالب الإكسيل في الشيت الأول
         function generateExcelTemplate() {
             let templateData = [
                 ["م", "رقم الجلوس", "اسم الطالب", "الكود", "الحالة", "اعمال الفصل"]
@@ -493,7 +522,6 @@
                     templateData.push([row[0], row[1], row[2], row[3], row[4], row[5]]);
                 });
             } else {
-                // صف تجريبي افتراضي في حال لم يتم تحميل شيت بعد
                 templateData.push([1, 101, "اسم الطالب التجريبي", "2026001", "مستجد", "10"]);
             }
 
@@ -619,6 +647,7 @@
             wrapper.innerHTML = ''; 
 
             const semester = document.getElementById('semester-select').value;
+            const academicYear = document.getElementById('academic-year-select').value;
             const year = document.getElementById('year-select').value;
             const dept = document.getElementById('dept-select').value;
             const section = document.getElementById('section-select').value;
@@ -637,19 +666,26 @@
             const isRandomAlign = document.getElementById('random-align-toggle').checked;
             const isTableBold = document.getElementById('table-weight-toggle').checked;
 
+            const chunkSize = 25;
+            let totalPages = 1;
+            
+            if (globalStudentsData.length > 0) {
+                totalPages = Math.ceil(globalStudentsData.length / chunkSize);
+            }
+
             if (globalStudentsData.length === 0) {
-                wrapper.innerHTML = createPageHTML([], semester, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold);
+                wrapper.innerHTML = createPageHTML([], semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold, 1, 1);
                 return;
             }
 
-            const chunkSize = 25; 
             for (let i = 0; i < globalStudentsData.length; i += chunkSize) {
                 const chunk = globalStudentsData.slice(i, i + chunkSize);
-                wrapper.innerHTML += createPageHTML(chunk, semester, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold);
+                let pageNum = Math.floor(i / chunkSize) + 1;
+                wrapper.innerHTML += createPageHTML(chunk, semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold, pageNum, totalPages);
             }
         }
 
-        function createPageHTML(chunkData, semester, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold) {
+        function createPageHTML(chunkData, semester, academicYear, year, dept, section, course, reportType, subType, lastCol, instLabel, inst1, inst2, inst3, gradeFont, gradeColor, isRandomAlign, isTableBold, pageNum, totalPages) {
             let rowsHTML = '';
             
             let weightClass = isTableBold ? 'fw-bold' : 'fw-normal';
@@ -664,14 +700,16 @@
                     let gradeTxt = row[5] !== undefined ? String(row[5]).trim() : '';
                     if (/\d/.test(gradeTxt)) {
                         let transformStyle = '';
-                        if (isRandomAlign) {
+                        if (isRandomAlign && gradeFont.includes('cursive')) {
                             let randomRotate = (Math.random() * 8 - 4).toFixed(1); 
                             let randomY = (Math.random() * 4 - 2).toFixed(1); 
                             let randomX = (Math.random() * 12 - 6).toFixed(1); 
                             transformStyle = `transform: translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg);`;
                         }
                         
-                        gradeTxt = `<span style="font-family: ${gradeFont}; color: ${gradeColor}; font-weight: bold; font-size: 21px; display: inline-block; line-height: 0.5; ${transformStyle}">${gradeTxt}</span>`;
+                        let lineHeightStyle = gradeFont.includes('cursive') ? 'line-height: 0.5;' : '';
+                        
+                        gradeTxt = `<span style="font-family: ${gradeFont}; color: ${gradeColor}; font-weight: bold; font-size: 21px; display: inline-block; ${lineHeightStyle} ${transformStyle}">${gradeTxt}</span>`;
                     }
 
                     rowsHTML += `
@@ -718,7 +756,7 @@
                 <table class="meta-data-table">
                     <tr>
                         <td><span class="bold-label">امتحان : </span><span class="regular-data">${semester}</span></td>
-                        <td><span class="bold-label">العام الجامعي : </span><span class="regular-data">2025/2026</span></td>
+                        <td><span class="bold-label">العام الجامعي : </span><span class="regular-data">${academicYear}</span></td>
                         <td><span class="bold-label">اللائحة : </span><span class="regular-data">لائحة الفصل الدراسي 2018</span></td>
                     </tr>
                     <tr>
@@ -766,6 +804,8 @@
                         ${inst3LineHtml}
                     </div>
                 </div>
+
+                <div class="page-number">${pageNum} / ${totalPages}</div>
             </div>
             `;
         }
