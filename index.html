@@ -34,35 +34,21 @@
             overflow-x: hidden;
         }
 
-        /* === Control Panel (Row-Based Architecture) === */
+        /* === Control Panel (Compact, Narrower & Packed) === */
         #control-panel {
             background: var(--glass-bg);
             border-bottom: 1px solid var(--glass-border);
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
-            padding: 12px;
-            margin: 10px;
+            padding: 10px;
+            margin: 8px;
             border-radius: 12px;
             display: flex;
-            flex-direction: column; /* تحويل لوحة التحكم لصفوف طولية */
-            gap: 12px;
-            transition: all 0.3s ease;
-        }
-
-        /* الصفوف الداخلية للوحة التحكم */
-        .control-row {
-            display: flex;
             flex-wrap: wrap;
-            justify-content: flex-start;
-            gap: 10px;
-            width: 100%;
-            padding-bottom: 8px;
-            border-bottom: 1px dashed rgba(0, 0, 0, 0.15);
-        }
-        
-        .control-row:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
+            justify-content: center;
+            gap: 8px 10px;
+            align-items: end;
+            transition: all 0.3s ease;
         }
 
         .input-group { 
@@ -104,16 +90,16 @@
         /* === Switch Button Styles (Narrow & Compact) === */
         .switch-container {
             display: flex; align-items: center; justify-content: space-between;
-            background: #fff; padding: 4px 8px; border: 1px solid #ccc; border-radius: 6px;
-            height: auto; min-height: 20px; transition: border-color 0.3s;
+            background: #fff; padding: 0 6px; border: 1px solid #ccc; border-radius: 6px;
+            height: 26px; box-sizing: border-box; width: 100%;
         }
         .switch-label { font-size: 11px; font-weight: bold; color: #333; }
-        .switch { position: relative; display: inline-block; width: 34px; height: 18px; margin: 0; }
+        .switch { position: relative; display: inline-block; width: 30px; height: 16px; margin: 0; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 18px; }
-        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; right: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 16px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; right: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: #2a5298; }
-        input:checked + .slider:before { transform: translateX(-16px); }
+        input:checked + .slider:before { transform: translateX(-14px); }
 
         /* === Floating Tools Container === */
         #floating-tools {
@@ -288,214 +274,195 @@
     <!-- Control Panel -->
     <div id="control-panel">
         
-        <!-- الصف الأول: أدوات التنسيق (من اليمين لليسار) -->
-        <div class="control-row">
-            <div class="input-group">
-                <label>🔠 خط الجدول</label>
-                <div class="switch-container">
-                    <span class="switch-label" id="lbl-weight">عريض</span>
-                    <label class="switch">
-                        <input type="checkbox" id="table-weight-toggle" checked onchange="document.getElementById('lbl-weight').textContent = this.checked ? 'عريض' : 'عادي'; renderPages()">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>🖋️ خط الدرجات</label>
-                <select id="grade-font-select" onchange="renderPages()">
-                    <option value="'Arial', sans-serif">Arial</option>
-                    <option value="'Cairo', sans-serif">Cairo</option>
-                    <option value="'Caveat', cursive" selected>Caveat (يدوي)</option>
-                    <option value="'Kalam', cursive">Kalam (يدوي)</option>
-                    <option value="'Amatic SC', cursive">Amatic SC (يدوي)</option>
-                    <option value="'Zeyada', cursive">Zeyada (يدوي)</option>
-                    <option value="'Just Another Hand', cursive">Just Another Hand (يدوي)</option>
-                    <option value="'Reenie Beanie', cursive">Reenie Beanie (يدوي)</option>
-                    <option value="'Nanum Pen Script', cursive">Nanum Pen Script (يدوي)</option>
-                    <option value="'Nothing You Could Do', cursive">Nothing You Could Do (يدوي)</option>
-                    <option value="'Waiting for the Sunrise', cursive">Waiting for the Sunrise (يدوي)</option>
-                    <option value="'Covered By Your Grace', cursive">Covered By Your Grace (يدوي)</option>
-                    <option value="'Dawning of a New Day', cursive">Dawning of a New Day (يدوي)</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label>📏 حجم الدرجات</label>
-                <input type="number" id="grade-size-input" value="21" min="10" max="40" oninput="renderPages()">
-            </div>
-
-            <div class="input-group">
-                <label>🎨 لون الدرجات</label>
-                <input type="color" id="grade-color-input" value="#0000cd" oninput="renderPages()">
-            </div>
-
-            <div class="input-group">
-                <label>🔀 اصطفاف الأرقام</label>
-                <div class="switch-container">
-                    <span class="switch-label" id="lbl-random">عشوائي</span>
-                    <label class="switch">
-                        <input type="checkbox" id="random-align-toggle" checked onchange="document.getElementById('lbl-random').textContent = this.checked ? 'عشوائي' : 'منتظم'; renderPages()">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>📝 اعتماد الكنترول</label>
-                <div class="switch-container">
-                    <span class="switch-label" id="lbl-approve">مخفي</span>
-                    <label class="switch">
-                        <input type="checkbox" id="approve-toggle" onchange="document.getElementById('lbl-approve').textContent = this.checked ? 'ظاهر' : 'مخفي'; renderPages()">
-                        <span class="slider"></span>
-                    </label>
-                </div>
+        <!-- 1. أزرار التنسيق -->
+        <div class="input-group">
+            <label>🔠 خط الجدول</label>
+            <div class="switch-container">
+                <span class="switch-label" id="lbl-weight">عريض</span>
+                <label class="switch">
+                    <input type="checkbox" id="table-weight-toggle" checked onchange="document.getElementById('lbl-weight').textContent = this.checked ? 'عريض' : 'عادي'; renderPages()">
+                    <span class="slider"></span>
+                </label>
             </div>
         </div>
 
-        <!-- الصف الثاني: مصادر البيانات -->
-        <div class="control-row">
-            <div class="input-group wide">
-                <label>📁 شيت إكسيل (من الجهاز)</label>
-                <input type="file" id="excel-file" accept=".xlsx, .xls">
-            </div>
+        <div class="input-group">
+            <label>🖋️ خط الدرجات</label>
+            <select id="grade-font-select" onchange="renderPages()">
+                <option value="'Arial', sans-serif">Arial</option>
+                <option value="'Cairo', sans-serif">Cairo</option>
+                <option value="'Caveat', cursive" selected>Caveat (يدوي)</option>
+                <option value="'Kalam', cursive">Kalam (يدوي)</option>
+                <option value="'Amatic SC', cursive">Amatic SC (يدوي)</option>
+                <option value="'Zeyada', cursive">Zeyada (يدوي)</option>
+                <option value="'Just Another Hand', cursive">Just Another Hand (يدوي)</option>
+                <option value="'Reenie Beanie', cursive">Reenie Beanie (يدوي)</option>
+                <option value="'Nanum Pen Script', cursive">Nanum Pen Script (يدوي)</option>
+                <option value="'Nothing You Could Do', cursive">Nothing You Could Do (يدوي)</option>
+                <option value="'Waiting for the Sunrise', cursive">Waiting for the Sunrise (يدوي)</option>
+                <option value="'Covered By Your Grace', cursive">Covered By Your Grace (يدوي)</option>
+                <option value="'Dawning of a New Day', cursive">Dawning of a New Day (يدوي)</option>
+            </select>
+        </div>
 
-            <div class="input-group wide">
-                <label>📂 قراءة ملف (من GitHub)</label>
-                <div style="display: flex; gap: 3px;">
-                    <select id="local-file-name" style="flex:1;">
-                        <option value="" disabled selected>جاري البحث...</option>
-                        <option value="data.xlsx">data.xlsx (افتراضي)</option>
-                    </select>
-                    <button class="btn-info" onclick="loadLocalFile()" title="قراءة الملف من الخادم">تحميل</button>
-                </div>
+        <div class="input-group">
+            <label>📏 حجم الدرجات</label>
+            <input type="number" id="grade-size-input" value="21" min="10" max="40" oninput="renderPages()">
+        </div>
+
+        <div class="input-group">
+            <label>🎨 لون الدرجات</label>
+            <input type="color" id="grade-color-input" value="#0000cd" oninput="renderPages()">
+        </div>
+
+        <div class="input-group">
+            <label>🔀 اصطفاف الأرقام</label>
+            <div class="switch-container">
+                <span class="switch-label" id="lbl-random">عشوائي</span>
+                <label class="switch">
+                    <input type="checkbox" id="random-align-toggle" checked onchange="document.getElementById('lbl-random').textContent = this.checked ? 'عشوائي' : 'منتظم'; renderPages()">
+                    <span class="slider"></span>
+                </label>
             </div>
         </div>
 
-        <!-- الصف الثالث: بيانات التقرير - السطر الأول (امتحان - العام الجامعي) -->
-        <div class="control-row">
-            <div class="input-group">
-                <label>📖 الفصل الدراسي</label>
-                <select id="semester-select" onchange="renderPages()">
-                    <option value="الفصل الدراسي الاول">الفصل الدراسي الاول</option>
-                    <option value="الفصل الدراسي الثاني">الفصل الدراسي الثاني</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label>📅 العام الجامعي</label>
-                <select id="academic-year-select" onchange="renderPages()">
-                    <option value="2025/2026" selected>2025/2026</option>
-                    <option value="2026/2027">2026/2027</option>
-                    <option value="2027/2028">2027/2028</option>
-                    <option value="2028/2029">2028/2029</option>
-                    <option value="2029/2030">2029/2030</option>
-                </select>
+        <div class="input-group">
+            <label>📝 اعتماد الكنترول</label>
+            <div class="switch-container">
+                <span class="switch-label" id="lbl-approve">مخفي</span>
+                <label class="switch">
+                    <input type="checkbox" id="approve-toggle" onchange="document.getElementById('lbl-approve').textContent = this.checked ? 'ظاهر' : 'مخفي'; renderPages()">
+                    <span class="slider"></span>
+                </label>
             </div>
         </div>
 
-        <!-- الصف الرابع: بيانات التقرير - السطر الثاني (القسم - الفرقة - الشعبة) -->
-        <div class="control-row">
-            <div class="input-group">
-                <label>🏛️ القسم</label>
-                <select id="dept-select" onchange="renderPages()">
-                    <option value="العلوم الأساسية" selected>العلوم الأساسية</option>
-                    <option value="الهندسة المدنية">الهندسة المدنية</option>
-                    <option value="الهندسة المعمارية">الهندسة المعمارية</option>
-                    <option value="الهندسة الكهربية">الهندسة الكهربية</option>
-                    <option value="هندسة الإلكترونيات والاتصالات الكهربية">هندسة الإلكترونيات والاتصالات الكهربية</option>
-                    <option value="هندسة الحاسبات والتحكم الالي">هندسة الحاسبات والتحكم الالي</option>
-                </select>
-            </div>
+        <!-- 2. ملفات الإدخال -->
+        <div class="input-group wide">
+            <label>📁 شيت إكسيل (من الجهاز)</label>
+            <input type="file" id="excel-file" accept=".xlsx, .xls">
+        </div>
 
-            <div class="input-group">
-                <label>🎓 الفرقة</label>
-                <select id="year-select" onchange="renderPages()">
-                    <option value="الاعدادية" selected>الاعدادية</option>
-                    <option value="الاولي">الاولي</option>
-                    <option value="الثانية">الثانية</option>
-                    <option value="الثالثة">الثالثة</option>
-                    <option value="الرابعة">الرابعة</option>
+        <div class="input-group wide">
+            <label>📂 قراءة ملف (من GitHub)</label>
+            <div style="display: flex; gap: 3px;">
+                <select id="local-file-name" style="flex:1;">
+                    <option value="" disabled selected>جاري البحث...</option>
+                    <option value="data.xlsx">data.xlsx (افتراضي)</option>
                 </select>
-            </div>
-
-            <div class="input-group">
-                <label>🌿 الشعبة</label>
-                <select id="section-select" onchange="renderPages()">
-                    <option value="عام" selected>عام</option>
-                    <option value="هندسة والإلكترونيات والاتصالات الكهربية">هندسة والإلكترونيات والاتصالات الكهربية</option>
-                    <option value="هندسة الحاسبات والتحكم الالي">هندسة الحاسبات والتحكم الالي</option>
-                </select>
+                <button class="btn-info" onclick="loadLocalFile()" title="قراءة الملف من الخادم">تحميل</button>
             </div>
         </div>
 
-        <!-- الصف الخامس: بيانات التقرير - السطر الثالث (المقرر - النوع - نوع التقرير) -->
-        <div class="control-row">
-            <div class="input-group">
-                <label>📚 المقرر الدراسي</label>
-                <input type="text" id="course-input" value="لغة انجليزية فنية" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_course-input">
-                <datalist id="dl_course-input"></datalist>
-            </div>
-
-            <div class="input-group">
-                <label>📄 النوع</label>
-                <select id="type-input" onchange="renderPages()">
-                    <option value="اعمال الفصل" selected>اعمال الفصل</option>
-                    <option value="عملي/شفوي">عملي/شفوي</option>
-                    <option value="منتصف الفصل">منتصف الفصل</option>
-                    <option value="تحريري">تحريري</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label>📑 نوع التقرير</label>
-                <select id="subtype-input" onchange="renderPages()">
-                    <option value="فارغ" selected>فارغ</option>
-                    <option value="درجات بعد الاعتماد">درجات بعد الاعتماد</option>
-                    <option value="درجات قبل الاعتماد">درجات قبل الاعتماد</option>
-                </select>
-            </div>
+        <!-- 3. بيانات التقرير -->
+        <div class="input-group">
+            <label>📖 الفصل الدراسي</label>
+            <select id="semester-select" onchange="renderPages()">
+                <option value="الفصل الدراسي الاول">الفصل الدراسي الاول</option>
+                <option value="الفصل الدراسي الثاني">الفصل الدراسي الثاني</option>
+            </select>
         </div>
 
-        <!-- الصف السادس: محتوى الجدول (الدرجات) -->
-        <div class="control-row">
-            <div class="input-group">
-                <label>📊 درجة العمود الأخير</label>
-                <input type="text" id="last-col-input" value="10" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_last-col-input">
-                <datalist id="dl_last-col-input"></datalist>
-            </div>
+        <div class="input-group">
+            <label>📅 العام الجامعي</label>
+            <select id="academic-year-select" onchange="renderPages()">
+                <option value="2025/2026" selected>2025/2026</option>
+                <option value="2026/2027">2026/2027</option>
+                <option value="2027/2028">2027/2028</option>
+                <option value="2028/2029">2028/2029</option>
+                <option value="2029/2030">2029/2030</option>
+            </select>
         </div>
 
-        <!-- الصف السابع: التوقيعات (أسفل التقرير من اليمين لليسار) -->
-        <div class="control-row">
-            <div class="input-group">
-                <label>🏷️ مسمى التوقيع</label>
-                <select id="instructor-label-input" onchange="renderPages()">
-                    <option value="أعضاء هيئة التدريس:" selected>أعضاء هيئة التدريس:</option>
-                    <option value="أعضاء التدريس:">أعضاء التدريس:</option>
-                    <option value="أعضاء الكنترول:">أعضاء الكنترول:</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label>✍️ هيئة التدريس (الأساسي)</label>
-                <input type="text" id="instructor-input" value="د/ عضو هيئة تدريس" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_instructor-input">
-                <datalist id="dl_instructor-input"></datalist>
-            </div>
-
-            <div class="input-group">
-                <label>✍️ عضو إضافي (اختياري)</label>
-                <input type="text" id="instructor2-input" placeholder="اتركه فارغاً إذا لم يوجد" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_instructor2-input">
-                <datalist id="dl_instructor2-input"></datalist>
-            </div>
-
-            <div class="input-group">
-                <label>✍️ عضو إضافي 3 (اختياري)</label>
-                <input type="text" id="instructor3-input" placeholder="اتركه فارغاً إذا لم يوجد" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_instructor3-input">
-                <datalist id="dl_instructor3-input"></datalist>
-            </div>
+        <div class="input-group">
+            <label>🏛️ القسم</label>
+            <select id="dept-select" onchange="renderPages()">
+                <option value="العلوم الأساسية" selected>العلوم الأساسية</option>
+                <option value="الهندسة المدنية">الهندسة المدنية</option>
+                <option value="الهندسة المعمارية">الهندسة المعمارية</option>
+                <option value="الهندسة الكهربية">الهندسة الكهربية</option>
+                <option value="هندسة الإلكترونيات والاتصالات الكهربية">هندسة الإلكترونيات والاتصالات الكهربية</option>
+                <option value="هندسة الحاسبات والتحكم الالي">هندسة الحاسبات والتحكم الالي</option>
+            </select>
         </div>
-        
+
+        <div class="input-group">
+            <label>🎓 الفرقة</label>
+            <select id="year-select" onchange="renderPages()">
+                <option value="الاعدادية" selected>الاعدادية</option>
+                <option value="الاولي">الاولي</option>
+                <option value="الثانية">الثانية</option>
+                <option value="الثالثة">الثالثة</option>
+                <option value="الرابعة">الرابعة</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>🌿 الشعبة</label>
+            <select id="section-select" onchange="renderPages()">
+                <option value="عام" selected>عام</option>
+                <option value="هندسة والإلكترونيات والاتصالات الكهربية">هندسة والإلكترونيات والاتصالات الكهربية</option>
+                <option value="هندسة الحاسبات والتحكم الالي">هندسة الحاسبات والتحكم الالي</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>📚 المقرر الدراسي</label>
+            <input type="text" id="course-input" value="لغة انجليزية فنية" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_course-input">
+            <datalist id="dl_course-input"></datalist>
+        </div>
+
+        <div class="input-group">
+            <label>📄 النوع</label>
+            <select id="type-input" onchange="renderPages()">
+                <option value="اعمال الفصل" selected>اعمال الفصل</option>
+                <option value="عملي/شفوي">عملي/شفوي</option>
+                <option value="منتصف الفصل">منتصف الفصل</option>
+                <option value="تحريري">تحريري</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>📑 نوع التقرير</label>
+            <select id="subtype-input" onchange="renderPages()">
+                <option value="فارغ" selected>فارغ</option>
+                <option value="درجات بعد الاعتماد">درجات بعد الاعتماد</option>
+                <option value="درجات قبل الاعتماد">درجات قبل الاعتماد</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>📊 درجة العمود الأخير</label>
+            <input type="text" id="last-col-input" value="10" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_last-col-input">
+            <datalist id="dl_last-col-input"></datalist>
+        </div>
+
+        <div class="input-group">
+            <label>🏷️ مسمى التوقيع</label>
+            <select id="instructor-label-input" onchange="renderPages()">
+                <option value="أعضاء هيئة التدريس:" selected>أعضاء هيئة التدريس:</option>
+                <option value="أعضاء التدريس:">أعضاء التدريس:</option>
+                <option value="أعضاء الكنترول:">أعضاء الكنترول:</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>✍️ هيئة التدريس (الأساسي)</label>
+            <input type="text" id="instructor-input" value="د/ عضو هيئة تدريس" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_instructor-input">
+            <datalist id="dl_instructor-input"></datalist>
+        </div>
+
+        <div class="input-group">
+            <label>✍️ عضو إضافي (اختياري)</label>
+            <input type="text" id="instructor2-input" placeholder="اتركه فارغاً إذا لم يوجد" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_instructor2-input">
+            <datalist id="dl_instructor2-input"></datalist>
+        </div>
+
+        <div class="input-group">
+            <label>✍️ عضو إضافي 3 (اختياري)</label>
+            <input type="text" id="instructor3-input" placeholder="اتركه فارغاً إذا لم يوجد" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_instructor3-input">
+            <datalist id="dl_instructor3-input"></datalist>
+        </div>
     </div>
 
     <!-- مجموعة الأزرار العائمة -->
@@ -850,6 +817,7 @@
                     
                     let gradeTxt = row[5] !== undefined ? String(row[5]).trim() : '';
                     if (gradeTxt !== '') {
+                        // إضافة شرط التحقق من حروف الغياب أو الحرمان (غ / ح)
                         if (gradeTxt === 'غ' || gradeTxt === 'ح') {
                             gradeTxt = `<span style="font-family: 'Cairo', sans-serif; color: ${gradeColor}; font-weight: bold; font-size: 14px; display: inline-block; border: 1px solid red; padding: 1px 6px; line-height: 1.1; border-radius: 2px;">${gradeTxt}</span>`;
                         } else {
