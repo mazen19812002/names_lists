@@ -217,7 +217,7 @@
             white-space: nowrap; 
         }
 
-        /* Signature Layout */
+        /* Signature Layout Modified to match Image Structure */
         .signature-area {
             margin-top: 5px; 
             font-size: 15px;
@@ -226,8 +226,10 @@
             justify-content: space-between;
             width: 100%;
         }
+        .sig-group-right { display: flex; gap: 20px; }
         .sig-col { display: flex; flex-direction: column; gap: 5px; }
-        .sig-col.center { text-align: center; align-items: center; }
+        .sig-col.right { text-align: right; align-items: flex-start; }
+        .sig-col.left { text-align: left; align-items: flex-end; }
 
         /* === Print Media Queries === */
         @media print {
@@ -393,8 +395,12 @@
         </div>
 
         <div class="input-group">
-            <label>🏷️ مسمى أعضاء التدريس</label>
-            <input type="text" id="instructor-label-input" value="أعضاء التدريس:" oninput="renderPages()">
+            <label>🏷️ مسمى التوقيع</label>
+            <select id="instructor-label-input" onchange="renderPages()">
+                <option value="أعضاء هيئة التدريس:" selected>أعضاء هيئة التدريس:</option>
+                <option value="أعضاء التدريس:">أعضاء التدريس:</option>
+                <option value="أعضاء الكنترول:">أعضاء الكنترول:</option>
+            </select>
         </div>
 
         <div class="input-group">
@@ -823,17 +829,19 @@
                 </table>
 
                 <div class="signature-area">
-                    <div class="sig-col">
-                        <span>${instLabel}</span>
-                        ${inst2LabelHidden}
-                        ${inst3LabelHidden}
+                    <div class="sig-group-right">
+                        <div class="sig-col right">
+                            <span>${instLabel}</span>
+                            ${inst2LabelHidden}
+                            ${inst3LabelHidden}
+                        </div>
+                        <div class="sig-col right">
+                            <span>${inst1}</span>
+                            ${inst2NameHtml}
+                            ${inst3NameHtml}
+                        </div>
                     </div>
-                    <div class="sig-col center">
-                        <span>${inst1}</span>
-                        ${inst2NameHtml}
-                        ${inst3NameHtml}
-                    </div>
-                    <div class="sig-col center">
+                    <div class="sig-col left">
                         <span>(---------------------)</span>
                         ${inst2LineHtml}
                         ${inst3LineHtml}
