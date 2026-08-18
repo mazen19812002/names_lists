@@ -381,9 +381,11 @@
             </select>
         </div>
 
+        <!-- حقول النص المزودة بخاصية الإكمال التلقائي الذكية -->
         <div class="input-group">
             <label>📚 المقرر الدراسي</label>
-            <input type="text" id="course-input" value="لغة انجليزية فنية" oninput="renderPages()">
+            <input type="text" id="course-input" value="لغة انجليزية فنية" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_course-input">
+            <datalist id="dl_course-input"></datalist>
         </div>
 
         <div class="input-group">
@@ -407,7 +409,8 @@
 
         <div class="input-group">
             <label>📊 رأس العمود الأخير</label>
-            <input type="text" id="last-col-input" value="اعمال الفصل [10]" oninput="renderPages()">
+            <input type="text" id="last-col-input" value="اعمال الفصل [10]" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_last-col-input">
+            <datalist id="dl_last-col-input"></datalist>
         </div>
 
         <div class="input-group">
@@ -421,17 +424,20 @@
 
         <div class="input-group">
             <label>✍️ هيئة التدريس (الأساسي)</label>
-            <input type="text" id="instructor-input" value="د/ عضو هيئة تدريس" oninput="renderPages()">
+            <input type="text" id="instructor-input" value="د/ عضو هيئة تدريس" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_instructor-input">
+            <datalist id="dl_instructor-input"></datalist>
         </div>
 
         <div class="input-group">
             <label>✍️ عضو إضافي (اختياري)</label>
-            <input type="text" id="instructor2-input" placeholder="اتركه فارغاً إذا لم يوجد" oninput="renderPages()">
+            <input type="text" id="instructor2-input" placeholder="اتركه فارغاً إذا لم يوجد" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_instructor2-input">
+            <datalist id="dl_instructor2-input"></datalist>
         </div>
 
         <div class="input-group">
             <label>✍️ عضو إضافي 3 (اختياري)</label>
-            <input type="text" id="instructor3-input" placeholder="اتركه فارغاً إذا لم يوجد" oninput="renderPages()">
+            <input type="text" id="instructor3-input" placeholder="اتركه فارغاً إذا لم يوجد" oninput="renderPages()" onchange="saveHistoryData(this.id, this.value)" list="dl_instructor3-input">
+            <datalist id="dl_instructor3-input"></datalist>
         </div>
     </div>
 
@@ -472,7 +478,7 @@
             autoLoadExcelFiles(); 
         }
 
-        // --- دوال الذاكرة المحلية (Local Storage) لحفظ واسترجاع الخيارات ---
+        // --- دوال الذاكرة المحلية (Local Storage) لحفظ واسترجاع الخيارات وتاريخ النصوص ---
         function saveInputData() {
             trackInputs.forEach(id => {
                 const el = document.getElementById(id);
@@ -481,6 +487,30 @@
                     else localStorage.setItem(id, el.value);
                 }
             });
+        }
+
+        // دالة حفظ سجل النصوص في الداتا ليست (تعمل فقط عند الانتهاء من الكتابة onchange)
+        function saveHistoryData(id, value) {
+            if (value.trim() === '') return;
+            let history = JSON.parse(localStorage.getItem('hist_' + id) || '[]');
+            history = history.filter(v => v !== value); 
+            history.unshift(value); 
+            if(history.length > 7) history.pop(); // حفظ آخر 7 إدخالات فقط
+            localStorage.setItem('hist_' + id, JSON.stringify(history));
+            populateDatalist(id);
+        }
+
+        function populateDatalist(id) {
+            const dl = document.getElementById('dl_' + id);
+            if(dl) {
+                let history = JSON.parse(localStorage.getItem('hist_' + id) || '[]');
+                dl.innerHTML = '';
+                history.forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v;
+                    dl.appendChild(opt);
+                });
+            }
         }
 
         function loadSavedData() {
@@ -496,6 +526,11 @@
                     } else {
                         el.value = savedVal;
                     }
+                }
+                
+                // ملء الداتا ليست للنصوص عند تحميل الصفحة
+                if (el && el.type === 'text' && document.getElementById('dl_' + id)) {
+                    populateDatalist(id);
                 }
             });
         }
@@ -792,7 +827,6 @@
             let inst3LineHtml = inst3.trim() !== '' ? `<span>(---------------------)</span>` : '';
             let inst3LabelHidden = inst3.trim() !== '' ? `<span style="visibility:hidden;">${instLabel}</span>` : '';
 
-            // نظام إظهار وإخفاء اعتماد الكنترول بمرونة دون التجاوز
             let leftDisplay = isApproved ? 'flex' : 'none';
 
             return `
