@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KFS-HIET Final Report Generator</title>
     
-    <!-- Dependencies: Cairo Font, 11 Handwriting Fonts (Straight '1' + Kalam), & SheetJS for Excel processing -->
+    <!-- Dependencies: Cairo Font, Handwriting Fonts, & SheetJS for Excel processing -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amatic+SC:wght@700&family=Caveat:wght@700&family=Zeyada&family=Reenie+Beanie&family=Just+Another+Hand&family=Nanum+Pen+Script&family=Nothing+You+Could+Do&family=Waiting+for+the+Sunrise&family=Covered+By+Your+Grace&family=Dawning+of+a+New+Day&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -34,42 +34,73 @@
             overflow-x: hidden;
         }
 
-        /* === Control Panel (Compact & Narrower) === */
+        /* === Control Panel (Compact, Narrower & Packed) === */
         #control-panel {
             background: var(--glass-bg);
             border-bottom: 1px solid var(--glass-border);
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
-            padding: 12px;
-            margin: 10px;
+            padding: 10px;
+            margin: 8px;
             border-radius: 12px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px 10px;
             align-items: end;
             transition: all 0.3s ease;
         }
 
-        .input-group { display: flex; flex-direction: column; gap: 3px; }
-        label { font-weight: bold; font-size: 12px; color: #1e3c72; }
-        input[type="text"], input[type="file"], input[type="number"], select {
-            padding: 5px 8px; border: 1px solid #ccc; border-radius: 6px;
-            font-size: 12px; outline: none; transition: border-color 0.3s;
-            font-family: 'Segoe UI', sans-serif; background: #fff;
+        .input-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 3px; 
+            width: 130px; /* Decreased width to eliminate white spaces */
         }
+        
+        .input-group.wide {
+            width: 190px; /* Enough only for file upload and GitHub read */
+        }
+
+        label { font-weight: bold; font-size: 11px; color: #1e3c72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        input[type="text"], input[type="file"], input[type="number"], select {
+            padding: 4px 6px; border: 1px solid #ccc; border-radius: 6px;
+            font-size: 11px; outline: none; transition: border-color 0.3s;
+            font-family: 'Segoe UI', sans-serif; background: #fff;
+            width: 100%; box-sizing: border-box; height: 26px;
+        }
+        
         input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: #2a5298; }
-        input[type="color"] { height: 28px !important; width: 60px !important; padding: 1px; cursor: pointer; border-radius: 6px; }
+        
+        input[type="color"] { 
+            height: 26px !important; width: 100% !important; padding: 1px; 
+            cursor: pointer; border-radius: 6px; box-sizing: border-box; 
+        }
 
         button {
-            padding: 6px 12px; border: none; border-radius: 20px; color: white;
-            font-weight: bold; font-size: 12px; cursor: pointer;
+            border: none; border-radius: 20px; color: white;
+            font-weight: bold; font-size: 11px; cursor: pointer;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;
             display: flex; align-items: center; gap: 5px; justify-content: center;
         }
         button:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .btn-action { background: var(--btn-accept); }
-        .btn-info { background: var(--btn-info); padding: 5px 10px; font-size: 11px; justify-content: center;}
+        .btn-info { background: var(--btn-info); padding: 4px 10px; border-radius: 6px; height: 26px;}
         
+        /* === Switch Button Styles (Narrow & Compact) === */
+        .switch-container {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #fff; padding: 0 6px; border: 1px solid #ccc; border-radius: 6px;
+            height: 26px; box-sizing: border-box; width: 100%;
+        }
+        .switch-label { font-size: 11px; font-weight: bold; color: #333; }
+        .switch { position: relative; display: inline-block; width: 30px; height: 16px; margin: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 16px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; right: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #2a5298; }
+        input:checked + .slider:before { transform: translateX(-14px); }
+
         /* === Floating Tools Container === */
         #floating-tools {
             position: fixed;
@@ -105,20 +136,6 @@
             border-radius: 50%; padding: 0; display: flex; justify-content: center; align-items: center;
             font-size: 18px;
         }
-
-        /* === Switch Button Styles (Narrower) === */
-        .switch-container {
-            display: flex; align-items: center; justify-content: space-between;
-            background: #fff; padding: 4px 8px; border: 1px solid #ccc; border-radius: 6px;
-            height: auto; min-height: 20px; transition: border-color 0.3s;
-        }
-        .switch-label { font-size: 11px; font-weight: bold; color: #333; }
-        .switch { position: relative; display: inline-block; width: 34px; height: 18px; margin: 0; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 18px; }
-        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; right: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #2a5298; }
-        input:checked + .slider:before { transform: translateX(-16px); }
 
         /* === Footer === */
         #animated-footer {
@@ -217,7 +234,7 @@
             white-space: nowrap; 
         }
 
-        /* Signature Layout - Dynamically aligned */
+        /* Signature Layout */
         .signature-area {
             margin-top: 5px; 
             font-size: 15px;
@@ -257,12 +274,12 @@
     <!-- Control Panel -->
     <div id="control-panel">
         
-        <div class="input-group">
+        <div class="input-group wide">
             <label>📁 شيت إكسيل (من الجهاز)</label>
             <input type="file" id="excel-file" accept=".xlsx, .xls">
         </div>
 
-        <div class="input-group">
+        <div class="input-group wide">
             <label>📂 قراءة ملف (من GitHub)</label>
             <div style="display: flex; gap: 3px;">
                 <select id="local-file-name" style="flex:1;">
@@ -292,10 +309,9 @@
             </select>
         </div>
 
-        <!-- حقل جديد لاختيار حجم الخط -->
         <div class="input-group">
             <label>📏 حجم الدرجات</label>
-            <input type="number" id="grade-size-input" value="21" min="10" max="40" oninput="renderPages()" title="اختر حجم الخط المناسب للدرجات">
+            <input type="number" id="grade-size-input" value="21" min="10" max="40" oninput="renderPages()">
         </div>
 
         <div class="input-group">
@@ -483,7 +499,6 @@
             autoLoadExcelFiles(); 
         }
 
-        // --- دوال الذاكرة المحلية (Local Storage) لحفظ واسترجاع الخيارات وتاريخ النصوص ---
         function saveInputData() {
             trackInputs.forEach(id => {
                 const el = document.getElementById(id);
@@ -937,7 +952,7 @@
             const footer = document.getElementById('animated-footer');
             uiVisible = !uiVisible;
             if (uiVisible) {
-                panel.style.display = 'grid';
+                panel.style.display = 'flex';
                 footer.style.display = 'block';
             } else {
                 panel.style.display = 'none';
