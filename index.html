@@ -217,7 +217,7 @@
             white-space: nowrap; 
         }
 
-        /* Signature Layout - Modified for Zero Shift */
+        /* Signature Layout - Dynamically aligned */
         .signature-area {
             margin-top: 5px; 
             font-size: 15px;
@@ -399,7 +399,7 @@
         <div class="input-group">
             <label>📑 نوع التقرير</label>
             <select id="subtype-input" onchange="renderPages()">
-                <option value="" selected>فارغ</option>
+                <option value="فارغ" selected>فارغ</option>
                 <option value="درجات بعد الاعتماد">درجات بعد الاعتماد</option>
                 <option value="درجات قبل الاعتماد">درجات قبل الاعتماد</option>
             </select>
@@ -435,7 +435,7 @@
         </div>
     </div>
 
-    <!-- مجموعة الأزرار العائمة (مرتبة رأسياً بجانب الترس) -->
+    <!-- مجموعة الأزرار العائمة -->
     <div id="floating-tools">
         <button id="floating-toggle" onclick="toggleUI()" title="إظهار/إخفاء لوحة التحكم">⚙️</button>
         <button class="btn-template" onclick="generateExcelTemplate()" title="تحميل قالب إكسيل جاهز">📥</button>
@@ -792,6 +792,9 @@
             let inst3LineHtml = inst3.trim() !== '' ? `<span>(---------------------)</span>` : '';
             let inst3LabelHidden = inst3.trim() !== '' ? `<span style="visibility:hidden;">${instLabel}</span>` : '';
 
+            // نظام إظهار وإخفاء اعتماد الكنترول بمرونة دون التجاوز
+            let leftDisplay = isApproved ? 'flex' : 'none';
+
             return `
             <div class="page">
                 <div class="report-header">
@@ -864,7 +867,7 @@
                         ${inst2LineHtml}
                         ${inst3LineHtml}
                     </div>
-                    <div class="sig-col left" style="visibility: ${isApproved ? 'visible' : 'hidden'};">
+                    <div class="sig-col left" style="display: ${leftDisplay};">
                         <span>يعتمد،،،</span>
                         <span style="visibility:hidden;">-</span>
                         <span>رئيس الكنترول</span>
